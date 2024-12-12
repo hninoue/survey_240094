@@ -304,7 +304,7 @@
        // 80試行目終了後に休憩を挿入
        if ((index + 1) === 80) {
            mainTrials.push({
-               type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],,
+               type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],
                stimulus: `
                    <h1>休憩</h1>
                    <p>休憩時間は30秒です。経過後、自動的に調査を再開します。</p>
