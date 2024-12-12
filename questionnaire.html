@@ -207,17 +207,6 @@
       type: "preload",
       audio: trialOrder.map(item => item.file) // 使用する音声ファイルをすべてプリロード
     };
-    
-    //あとでけす_テスト用
-    var playbackTestTrials = trialOrder.map((item, index) => ({
-      type: "audio-keyboard-response",
-      stimulus: item.file,
-      prompt: `<p>${index + 1}番目の音声を確認してください。</p>`,
-      choices: [' '],
-      trial_ends_after_audio: false
-    }));
-
-    jsPsych.run(playbackTestTrials);
 
     // 音量調整フェイズ：教示
     var volumeInstruction = {
@@ -350,20 +339,20 @@
     };
 
     // jsPsych初期化
-    jsPsych.init({
-        timeline: [
-            preload,            // 音声のプリロード
-            volumeInstruction,  // 音量調整フェイズ：教示
-            volumeAdjustment,   // 音量調整フェイズ：操作
-            mainInstruction,    // 本試行：教示
-            mainPractice,       // 本試行：練習
-            ...mainTrials,      // 本試行：操作
-            showCode,           // 終了時のコード提示
-            save_data           // データ保存
-        ],
-        on_finish: function() {
-            jsPsych.data.get().localSave('csv', 'data.csv'); // データ保存
-        }
-    });
+    const jsPsych = initJsPsych();
+
+    jsPsych.run([
+        preload,            // 音声のプリロード
+        volumeInstruction,  // 音量調整フェイズ：教示
+        volumeAdjustment,   // 音量調整フェイズ：操作
+        mainInstruction,    // 本試行：教示
+        mainPractice,       // 本試行：練習
+        ...mainTrials,      // 本試行：操作
+        showCode,           // 終了時のコード提示
+        save_data           // データ保存
+    ]);
+
+    jsPsych.data.get().localSave('csv', 'data.csv'); // データ保存
+        
   </script>
 </html>
