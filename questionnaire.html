@@ -338,9 +338,7 @@
         data_string: () => jsPsych.data.get().csv()
     };
 
-    // jsPsych初期化
-    const jsPsych = initJsPsych();
-
+    // 実験の実行
     jsPsych.run([
         preload,            // 音声のプリロード
         volumeInstruction,  // 音量調整フェイズ：教示
