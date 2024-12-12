@@ -211,7 +211,7 @@
 
     // 音量調整フェイズ：教示
     var volumeInstruction = {
-      type: "@jspsych/plugin-html-keyboard-response",
+      type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],
       stimulus: `
         <h1>事前準備</h1>
         <p>これから調査の準備を始めます。</p>
@@ -228,7 +228,7 @@
 
     // 音量調整フェイズ：操作
     var volumeAdjustment = {
-      type: "@jspsych/plugin-audio-keyboard-response",
+      type: jsPsych.plugins['@jspsych/plugin-audio-keyboard-response'],
       stimulus: trialOrder[0].file, // 音声ファイルのURLを直接指定
       prompt: `
         <h1>音量調整</h1>
@@ -241,7 +241,7 @@
 
     // 本試行：教示
     var mainInstruction = {
-      type: "@jspsych/plugin-html-keyboard-response",
+      type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],
       stimulus: `
         <h1>調査内容</h1>
         <p>これから調査を始めます。この調査では、<b>話し方の自然さ</b>を調べます。</p>
@@ -258,7 +258,7 @@
 
     // 本試行：練習
     var mainPractice = {
-      type: "@jspsych/plugin-html-button-response",
+      type: jsPsych.plugins['@jspsych/plugin-html-button-response'],
       stimulus: `
         <h1>回答練習</h1>
         <p>「5: やや自然である」と回答する場合、「5」のボタンをクリックしてください。</p>
@@ -283,7 +283,7 @@
    trialOrder.slice(1).forEach(function(trial, index) {
        // 音声提示と自然さの評価を同時に行う
        mainTrials.push({
-           type: "@jspsych/plugin-html-button-response", // 一つの画面で提示
+           type: jsPsych.plugins['@jspsych/plugin-html-button-response'], // 一つの画面で提示
            stimulus: `
                <div>
                    <audio id="audio-player" src="${trial.file}" autoplay></audio>
@@ -304,7 +304,7 @@
        // 80試行目終了後に休憩を挿入
        if ((index + 1) === 80) {
            mainTrials.push({
-               type: "@jspsych/plugin-html-keyboard-response",
+               type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],,
                stimulus: `
                    <h1>休憩</h1>
                    <p>休憩時間は30秒です。経過後、自動的に調査を再開します。</p>
@@ -318,7 +318,7 @@
 
     // 終了時のコード提示
     var showCode = {
-        type: "@jspsych/plugin-html-keyboard-response",
+        type: jsPsych.plugins['@jspsych/plugin-html-keyboard-response'],,
         stimulus: `
             <h1>調査終了</h1>
             <p>調査にご協力くださり誠にありがとうございました。</p>
