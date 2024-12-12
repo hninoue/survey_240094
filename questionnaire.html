@@ -228,7 +228,7 @@
 
     // 音量調整フェイズ：操作
     var volumeAdjustment = {
-      type: jsPsych.plugins['audio-keyboard-response'],
+      type: "@jspsych/plugin-audio-keyboard-response",
       stimulus: trialOrder[0].file, // 音声ファイルのURLを直接指定
       prompt: `
         <h1>音量調整</h1>
