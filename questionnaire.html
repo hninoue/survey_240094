@@ -211,7 +211,7 @@
 
     // 音量調整フェイズ：教示
     var volumeInstruction = {
-      type: jsPsych.plugins['html-keyboard-response'],
+      type: "@jspsych/plugin-html-keyboard-response",
       stimulus: `
         <h1>事前準備</h1>
         <p>これから調査の準備を始めます。</p>
@@ -241,7 +241,7 @@
 
     // 本試行：教示
     var mainInstruction = {
-      type: jsPsych.plugins['html-keyboard-response'],
+      type: "@jspsych/plugin-html-keyboard-response",
       stimulus: `
         <h1>調査内容</h1>
         <p>これから調査を始めます。この調査では、<b>話し方の自然さ</b>を調べます。</p>
@@ -304,7 +304,7 @@
        // 80試行目終了後に休憩を挿入
        if ((index + 1) === 80) {
            mainTrials.push({
-               type: jsPsych.plugins['html-keyboard-response'],
+               type: "@jspsych/plugin-html-keyboard-response",
                stimulus: `
                    <h1>休憩</h1>
                    <p>休憩時間は30秒です。経過後、自動的に調査を再開します。</p>
@@ -318,7 +318,7 @@
 
     // 終了時のコード提示
     var showCode = {
-        type: jsPsych.plugins['html-keyboard-response'],
+        type: "@jspsych/plugin-html-keyboard-response",
         stimulus: `
             <h1>調査終了</h1>
             <p>調査にご協力くださり誠にありがとうございました。</p>
