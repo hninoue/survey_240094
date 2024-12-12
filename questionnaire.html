@@ -209,7 +209,7 @@
     
     //あとでけす_テスト用
     var playbackTestTrials = trialOrder.map((item, index) => ({
-      type: jsPsychAudioKeyboardResponse,
+      type: "audio-keyboard-response",
       stimulus: item.file,
       prompt: `<p>${index + 1}番目の音声を確認してください。</p>`,
       choices: [' '],
