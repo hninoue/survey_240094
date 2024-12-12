@@ -258,7 +258,7 @@
 
     // 本試行：練習
     var mainPractice = {
-      type: jsPsych.plugins['html-button-response'],
+      type: "@jspsych/plugin-html-button-response",
       stimulus: `
         <h1>回答練習</h1>
         <p>「5: やや自然である」と回答する場合、「5」のボタンをクリックしてください。</p>
@@ -283,7 +283,7 @@
    trialOrder.slice(1).forEach(function(trial, index) {
        // 音声提示と自然さの評価を同時に行う
        mainTrials.push({
-           type: jsPsych.plugins['html-button-response'], // 一つの画面で提示
+           type: "@jspsych/plugin-html-button-response", // 一つの画面で提示
            stimulus: `
                <div>
                    <audio id="audio-player" src="${trial.file}" autoplay></audio>
