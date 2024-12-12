@@ -297,7 +297,8 @@
                word: trial.word,
                prosody: trial.prosody,
                trial_index: index + 1
-           }
+           },
+           trial_ends_after_audio: true  // 音声が再生された後に試行を終了
        });
 
        // 80試行目終了後に休憩を挿入
