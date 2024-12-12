@@ -11,6 +11,20 @@
   <script>
     const jsPsych = initJsPsych();
 
+    // フルスクリーンのリクエスト関数
+    function enterFullScreen() {
+      const docElement = document.documentElement;
+      if (docElement.requestFullscreen) {
+        docElement.requestFullscreen();
+      } else if (docElement.mozRequestFullScreen) { // Firefox
+        docElement.mozRequestFullScreen();
+      } else if (docElement.webkitRequestFullscreen) { // Chrome, Safari
+        docElement.webkitRequestFullscreen();
+      } else if (docElement.msRequestFullscreen) { // IE
+        docElement.msRequestFullscreen();
+      }
+    }
+    
     // 音声データリスト（OSFの公開URLを指定）
     var audioData = [
       { file: 'https://osf.io/t3swz/download?version=1', word: 'けんとうし', prosody: '音量調整' },
