@@ -208,15 +208,15 @@
     };
     
     //あとでけす_テスト用
-    const test_audio_trial = {
+    var playbackTestTrials = trialOrder.map((item, index) => ({
       type: jsPsychAudioKeyboardResponse,
-      stimulus: trialOrder[1].file, // プリロードした最初の音声ファイル
-      prompt: "<p>音声を確認してください。終了後にスペースキーを押してください。</p>",
+      stimulus: item.file,
+      prompt: `<p>${index + 1}番目の音声を確認してください。</p>`,
       choices: [' '],
       trial_ends_after_audio: false
-    };
-    
-    jsPsych.run([test_audio_trial]);
+    }));
+
+    jsPsych.run(playbackTestTrials);
 
     // 音量調整フェイズ：教示
     var volumeInstruction = {
