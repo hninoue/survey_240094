@@ -11,23 +11,333 @@
   <script>
     const jsPsych = initJsPsych();
 
-    const subject_id = jsPsych.randomization.randomID(10);
-    const filename = `${subject_id}.csv`;
-            
-    const hello_trial = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: 'Hello world!'
+    // 音声データリスト（OSFの公開URLを指定）
+    var audioData = [
+      { file: 'https://osf.io/t3swz/download?version=1', word: 'けんとうし', prosody: '音量調整' },
+      { file: 'https://osf.io/knzbp/download?version=1', word: 'すききらい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/u26v7/download?version=1', word: 'きんみらい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/u7d46/download?version=1', word: 'いろなおし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/nje34/download?version=1', word: 'はやとちり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/zj9en/download?version=1', word: 'たほうめん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/aedv5/download?version=1', word: 'すなあらし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/efxtc/download?version=1', word: 'さんかいき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/n2g5v/download?version=1', word: 'はえたたき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/h5kaz/download?version=1', word: 'あおにさい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/rxtsk/download?version=1', word: 'ついしけん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/qg89m/download?version=1', word: 'ひるやすみ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/h8jta/download?version=1', word: 'やくはらい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/k85rb/download?version=1', word: 'にもうさく', prosody: '抑揚なし' },
+      { file: 'https://osf.io/8wt2a/download?version=1', word: 'つなわたり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/5437s/download?version=1', word: 'うりふたつ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/fbz3s/download?version=1', word: 'やけのはら', prosody: '抑揚なし' },
+      { file: 'https://osf.io/ef7x4/download?version=1', word: 'なまかわき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/7phtm/download?version=1', word: 'みかいけつ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/na6gr/download?version=1', word: 'おひとよし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/9exnc/download?version=1', word: 'てつあれい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/cukd4/download?version=1', word: 'たまひろい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/b3p9f/download?version=1', word: 'うちいわい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/t2pg7/download?version=1', word: 'むいちもん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/9tnk7/download?version=1', word: 'みせいねん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/g6pyt/download?version=1', word: 'なまけもの', prosody: '抑揚あり' },
+      { file: 'https://osf.io/r7x6j/download?version=1', word: 'むせいらん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/4vfuh/download?version=1', word: 'くらやしき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/eyhx9/download?version=1', word: 'かねもうけ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/cndxs/download?version=1', word: 'はやおくり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/8fum3/download?version=1', word: 'たこうしき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/6v9gb/download?version=1', word: 'つみつくり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/bpysd/download?version=1', word: 'むせきにん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/5mqbp/download?version=1', word: 'ねつさまし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/fr6s9/download?version=1', word: 'くりかえし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/g7dhj/download?version=1', word: 'たねあかし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/ydx2k/download?version=1', word: 'ていしせい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/p2f4c/download?version=1', word: 'むしさされ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/yzv89/download?version=1', word: 'はまりやく', prosody: '抑揚なし' },
+      { file: 'https://osf.io/7ef3r/download?version=1', word: 'ななひかり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/sdhg3/download?version=1', word: 'ほしあかり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/3j7cf/download?version=1', word: 'うんまかせ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/ebspf/download?version=1', word: 'ひこうしき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/f6buw/download?version=1', word: 'ものわすれ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/m56yx/download?version=1', word: 'ふかくてい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/des2q/download?version=1', word: 'ひとつまみ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/uk6fa/download?version=1', word: 'きねんさい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/xy6n5/download?version=1', word: 'まえのめり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/zmeps/download?version=1', word: 'こうはんい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/tqw45/download?version=1', word: 'さらまわし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/p3zyd/download?version=1', word: 'からまわり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/78hav/download?version=1', word: 'あめおんな', prosody: '抑揚なし' },
+      { file: 'https://osf.io/7dqbc/download?version=1', word: 'おすそわけ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/x3u6c/download?version=1', word: 'あしならし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/73gdf/download?version=1', word: 'なかなおり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/phjbx/download?version=1', word: 'ひなまつり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/3zgu4/download?version=1', word: 'しんきろう', prosody: '抑揚なし' },
+      { file: 'https://osf.io/5zahm/download?version=1', word: 'くさむしり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/4r8zp/download?version=1', word: 'ひとさらい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/vkc65/download?version=1', word: 'ふくさよう', prosody: '抑揚あり' },
+      { file: 'https://osf.io/m7ugw/download?version=1', word: 'ことこまか', prosody: '抑揚なし' },
+      { file: 'https://osf.io/2kbrm/download?version=1', word: 'おにやんま', prosody: '抑揚なし' },
+      { file: 'https://osf.io/8kzre/download?version=1', word: 'はかまいり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/nye6g/download?version=1', word: 'むこようし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/eaj3x/download?version=1', word: 'おみとおし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/7k4j5/download?version=1', word: 'くみあわせ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/bg4vs/download?version=1', word: 'まてんろう', prosody: '抑揚なし' },
+      { file: 'https://osf.io/c65hk/download?version=1', word: 'きそゆうよ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/zgq2f/download?version=1', word: 'かたおもい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/3xk8g/download?version=1', word: 'やまおとこ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/kpwgc/download?version=1', word: 'いしあたま', prosody: '抑揚あり' },
+      { file: 'https://osf.io/4zn6x/download?version=1', word: 'しうんてん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/8swef/download?version=1', word: 'てれかくし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/yjnps/download?version=1', word: 'たなおろし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/cp5h2/download?version=1', word: 'おきにいり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/xvgqz/download?version=1', word: 'そらもよう', prosody: '抑揚あり' },
+      { file: 'https://osf.io/j9e62/download?version=1', word: 'かものはし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/qmk9g/download?version=1', word: 'なきわらい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/vsabq/download?version=1', word: 'ゆめまくら', prosody: '抑揚なし' },
+      { file: 'https://osf.io/kpezd/download?version=1', word: 'おおみそか', prosody: '抑揚あり' },
+      { file: 'https://osf.io/jyu9s/download?version=1', word: 'ししんけい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/vz8ha/download?version=1', word: 'ゆめまくら', prosody: '抑揚あり' },
+      { file: 'https://osf.io/qaxte/download?version=1', word: 'おきにいり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/zx6a3/download?version=1', word: 'ほしあかり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/mdk87/download?version=1', word: 'はやとちり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/gn2bd/download?version=1', word: 'にもうさく', prosody: '抑揚あり' },
+      { file: 'https://osf.io/3x7nj/download?version=1', word: 'たまひろい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/348we/download?version=1', word: 'くらやしき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/pjh94/download?version=1', word: 'いしあたま', prosody: '抑揚なし' },
+      { file: 'https://osf.io/afxvr/download?version=1', word: 'おにやんま', prosody: '抑揚あり' },
+      { file: 'https://osf.io/ypuzh/download?version=1', word: 'てれかくし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/w9vrp/download?version=1', word: 'かたおもい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/gjrbx/download?version=1', word: 'なまかわき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/afjz9/download?version=1', word: 'はやおくり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/wgs2d/download?version=1', word: 'ていしせい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/6s4h2/download?version=1', word: 'やまおとこ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/u8r2q/download?version=1', word: 'おおみそか', prosody: '抑揚なし' },
+      { file: 'https://osf.io/4p3g7/download?version=1', word: 'まてんろう', prosody: '抑揚あり' },
+      { file: 'https://osf.io/4zyqn/download?version=1', word: 'みせいねん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/qmzan/download?version=1', word: 'ななひかり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/hgdm8/download?version=1', word: 'ししんけい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/sje2a/download?version=1', word: 'やけのはら', prosody: '抑揚あり' },
+      { file: 'https://osf.io/de9sw/download?version=1', word: 'すききらい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/t5sm4/download?version=1', word: 'おすそわけ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/dyvut/download?version=1', word: 'おみとおし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/865h2/download?version=1', word: 'なかなおり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/n3qcf/download?version=1', word: 'まえのめり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/3cxaj/download?version=1', word: 'すなあらし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/5rupf/download?version=1', word: 'むしさされ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/y6cvk/download?version=1', word: 'くみあわせ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/zb5pc/download?version=1', word: 'たなおろし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/drb58/download?version=1', word: 'ひとつまみ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/xmvze/download?version=1', word: 'かものはし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/cmjdn/download?version=1', word: 'あおにさい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/gwhzu/download?version=1', word: 'ついしけん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/qkufm/download?version=1', word: 'くさむしり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/ps7bv/download?version=1', word: 'しんきろう', prosody: '抑揚あり' },
+      { file: 'https://osf.io/evuma/download?version=1', word: 'ひなまつり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/kfu43/download?version=1', word: 'さんかいき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/fdx8v/download?version=1', word: 'こうはんい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/fqvc6/download?version=1', word: 'むせいらん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/sxrd4/download?version=1', word: 'はえたたき', prosody: '抑揚なし' },
+      { file: 'https://osf.io/76t95/download?version=1', word: 'きんみらい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/kjfq2/download?version=1', word: 'きそゆうよ', prosody: '抑揚あり' },
+      { file: 'https://osf.io/zfex3/download?version=1', word: 'かねもうけ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/68bdu/download?version=1', word: 'ふくさよう', prosody: '抑揚なし' },
+      { file: 'https://osf.io/7zufg/download?version=1', word: 'いろなおし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/crn6h/download?version=1', word: 'ふかくてい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/md75w/download?version=1', word: 'くりかえし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/rfv2p/download?version=1', word: 'きねんさい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/vhypf/download?version=1', word: 'からまわり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/ca7vx/download?version=1', word: 'ことこまか', prosody: '抑揚あり' },
+      { file: 'https://osf.io/2mvgb/download?version=1', word: 'なきわらい', prosody: '抑揚なし' },
+      { file: 'https://osf.io/bawp4/download?version=1', word: 'たねあかし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/nwjq5/download?version=1', word: 'うちいわい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/uk8vm/download?version=1', word: 'むこようし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/aqhm9/download?version=1', word: 'ひこうしき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/ntqkj/download?version=1', word: 'なまけもの', prosody: '抑揚なし' },
+      { file: 'https://osf.io/pem4k/download?version=1', word: 'ねつさまし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/7em2p/download?version=1', word: 'みかいけつ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/5sek8/download?version=1', word: 'むいちもん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/4ftdq/download?version=1', word: 'うりふたつ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/ueym2/download?version=1', word: 'つみつくり', prosody: '抑揚あり' },
+      { file: 'https://osf.io/wpq6m/download?version=1', word: 'おひとよし', prosody: '抑揚なし' },
+      { file: 'https://osf.io/hqex5/download?version=1', word: 'しうんてん', prosody: '抑揚あり' },
+      { file: 'https://osf.io/re92c/download?version=1', word: 'つなわたり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/mfngr/download?version=1', word: 'たこうしき', prosody: '抑揚あり' },
+      { file: 'https://osf.io/q5nm3/download?version=1', word: 'そらもよう', prosody: '抑揚なし' },
+      { file: 'https://osf.io/mdsxb/download?version=1', word: 'てつあれい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/r4gm5/download?version=1', word: 'ひとさらい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/w3cx7/download?version=1', word: 'むせきにん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/r94gj/download?version=1', word: 'ものわすれ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/m74kd/download?version=1', word: 'あしならし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/p9a67/download?version=1', word: 'はかまいり', prosody: '抑揚なし' },
+      { file: 'https://osf.io/rjxy2/download?version=1', word: 'あめおんな', prosody: '抑揚あり' },
+      { file: 'https://osf.io/wxet8/download?version=1', word: 'さらまわし', prosody: '抑揚あり' },
+      { file: 'https://osf.io/5f8e3/download?version=1', word: 'たほうめん', prosody: '抑揚なし' },
+      { file: 'https://osf.io/6zsvc/download?version=1', word: 'はまりやく', prosody: '抑揚あり' },
+      { file: 'https://osf.io/nu97t/download?version=1', word: 'ひるやすみ', prosody: '抑揚なし' },
+      { file: 'https://osf.io/ybgvp/download?version=1', word: 'やくはらい', prosody: '抑揚あり' },
+      { file: 'https://osf.io/phe24/download?version=1', word: 'うんまかせ', prosody: '抑揚なし' },
+    ];
+
+    // 参加者IDの取得
+    var participantId = jsPsych.data.getURLVariable('participant_id') || 1;
+
+    // 提示順を決定
+    var trialOrder;
+    if (participantId % 2 === 1) {
+        trialOrder = audioData; // 奇数番目の参加者: そのままの順番
+    } else {
+        trialOrder = audioData.slice().reverse(); // 偶数番目の参加者: 逆順
     }
 
-    const save_data = {
-      type: jsPsychPipe,
-      action: "save",
-      experiment_id: "ZWmEpETHLVnZ",
-      filename: filename,
-      data_string: ()=>jsPsych.data.get().csv()
+    // プリロード設定
+    var preload = {
+      type: "preload",
+      audio: trialOrder.map(item => item.file) // 使用する音声ファイルをすべてプリロード
+    };
+
+    // 音量調整フェイズ：教示
+    var volumeInstruction = {
+      type: "html-keyboard-response",
+      stimulus: `
+        <h1>事前準備</h1>
+        <p>これから調査の準備を始めます。</p>
+        <ul>
+            <li><b>お願い１</b><br>パソコン以外の機器の電源をOFFにして雑音が聞こえないようにしてください。</li>
+            <li><b>お願い２</b><br>１人きりになれる静かな環境に移動してください。</li>
+            <li><b>お願い３</b><br>ヘッドフォンまたはイヤフォンを装着してください。</li>
+            <li><b>お願い４</b><br>次画面においてテスト音声が流れますので、聞こえやすい音量に調整してください。</li>
+        </ul>
+        <br><br><b>上記の内容について準備できましたらスペースキーを押してください。</b>
+      `,
+      choices: [' ']
+    };
+
+    // 音量調整フェイズ：操作
+    var volumeAdjustment = {
+      type: "audio-keyboard-response",
+      stimulus: trialOrder[0].file, // 音声ファイルのURLを直接指定
+      prompt: `
+        <h1>音量調整</h1>
+        <p>以下の音声を再生します。聞こえやすい音量に調整してください。</p>
+        <p>調整が終わりましたらスペースキーを押してください。</p>
+      `,
+      choices: [' '],
+      trial_ends_after_audio: false
+    };
+
+    // 本試行：教示
+    var mainInstruction = {
+      type: "html-keyboard-response",
+      stimulus: `
+        <h1>調査内容</h1>
+        <p>これから調査を始めます。この調査では、<b>話し方の自然さ</b>を調べます。</p>
+        <p>提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を判断してください。</p>
+        <ul>
+            <li><b>留意事項１:</b> 提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
+            <li><b>留意事項２:</b> 試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
+            <li><b>留意事項３:</b> 同じ言葉が何回も流れますが、気にする必要はありません。</li>
+        </ul>
+        <p><b>上記の内容について理解できましたら、スペースキーを押してください。</b></p>
+      `,
+      choices: [' ']
+    };
+
+    // 本試行：練習
+    var mainPractice = {
+      type: "html-button-response",
+      stimulus: `
+        <h1>回答練習</h1>
+        <p>「5: やや自然である」と回答する場合、「5」のボタンをクリックしてください。</p>
+        <p>以下の質問に対して適切な数字を選択してください。</p>
+        <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+      `,
+      choices: ["1: 不自然である", "2", "3", "4", "5", "6: 自然である"],
+      data: {
+        practice: true, // 練習用であることを示すデータ
+        correct_choice: "5" // 正解は「5」
+      },
+      on_finish: function(data) {
+        // 選択した回答が正しいかチェック
+        if (data.response !== 4) { // 配列のインデックスでチェック (4 = "5"の位置)
+          alert("練習ですので、正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
+        }
+      }
     };
     
-    jsPsych.run([hello_trial]);
-    jsPsych.run([hello_trial, save_data]);
+   // 本試行：操作
+   var mainTrials = [];
+   trialOrder.slice(1).forEach(function(trial, index) {
+       // 音声提示と自然さの評価を同時に行う
+       mainTrials.push({
+           type: "html-button-response", // 一つの画面で提示
+           stimulus: `
+               <div>
+                   <audio id="audio-player" src="${trial.file}" autoplay></audio>
+               </div>
+           `,
+           prompt: `
+               <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+           `,
+           choices: ["1: 不自然", "2", "3", "4", "5", "6: 自然"],
+           data: {
+               word: trial.word,
+               prosody: trial.prosody,
+               trial_index: index + 1
+           }
+       });
+
+       // 80試行目終了後に休憩を挿入
+       if ((index + 1) === 80) {
+           mainTrials.push({
+               type: "html-keyboard-response",
+               stimulus: `
+                   <h1>休憩</h1>
+                   <p>休憩時間は30秒です。経過後、自動的に調査を再開します。</p>
+                   <p>ヘッドフォンをつけたまま、リラックスしてその場でお待ちください。</p>
+               `,
+               choices: jsPsych.NO_KEYS,
+               trial_duration: 30000 // 30秒
+           });
+       }
+    });
+
+    // 終了時のコード提示
+    var showCode = {
+        type: "html-keyboard-response",
+        stimulus: `
+            <h1>調査終了</h1>
+            <p>調査にご協力くださり誠にありがとうございました。</p>
+            <ul>
+                <li><b>お願い１:</b> Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
+                <li><b>お願い２:</b> 以下のコードを控えてください: <strong>${Math.random().toString(36).substring(2, 8).toUpperCase()}</strong></li>
+            </ul>
+            <p><b>コードを控えることができましたら、スペースキーを押してください。</b></p>
+        `,
+        choices: [' ']
+    };
+
+    // データ保存用の設定
+    const save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "ZWmEpETHLVnZ", // OSFでの実験ID
+        filename: `${participantId}.csv`, // ファイル名に参加者IDを使用
+        data_string: () => jsPsych.data.get().csv()
+    };
+
+    // jsPsych初期化
+    jsPsych.init({
+        timeline: [
+            preload,            // 音声のプリロード
+            volumeInstruction,  // 音量調整フェイズ：教示
+            volumeAdjustment,   // 音量調整フェイズ：操作
+            mainInstruction,    // 本試行：教示
+            mainPractice,       // 本試行：練習
+            ...mainTrials,      // 本試行：操作
+            showCode,           // 終了時のコード提示
+            save_data           // データ保存
+        ],
+        on_finish: function() {
+            jsPsych.data.get().localSave('csv', 'data.csv'); // データ保存
+        }
+    });
   </script>
 </html>
