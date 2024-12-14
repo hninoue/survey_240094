@@ -243,12 +243,6 @@
       `,
       choices: [' '],
       trial_ends_after_audio: false, // 音声が再生されても試行が終了しない
-      audio_ends: false,  // 音声が再生されても自動で終了しないように設定
-      on_finish: function(data) {
-        // スペースキーが押されるまで音声が繰り返し再生される
-        var audioElement = document.getElementById("audio-player");
-        audioElement.play();
-      }
     };
 
     // 本試行：教示
