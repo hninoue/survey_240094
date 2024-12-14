@@ -270,30 +270,47 @@
 
     // 本試行：練習
     var mainPractice = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: `
-        <h1>回答練習</h1>
-        <p>「5: やや自然である」と回答する場合、「5」のボタンをクリックしてください。</p>
-        <p>以下の質問に対して適切な数字を選択してください。</p>
-        <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
-      `,
-      prompt: `
-        <div style="text-align: center;">
-            <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" alt="数直線" style="max-width: 80%; height: auto; margin-bottom: 20px;">
-        </div>
-      `,
-      choices: ["1: 不自然である", "2", "3", "4", "5", "6: 自然である"],
-      data: {
-        practice: true, // 練習用であることを示すデータ
-        correct_choice: "5" // 正解は「5」
-      },
-      on_finish: function(data) {
-        // 選択した回答が正しいかチェック
-        if (data.response !== 4) { // 配列のインデックスでチェック (4 = "5"の位置)
-          alert("練習ですので、正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <h1>回答練習</h1>
+            <p>「5: やや自然である」と回答する場合、「5」のボタンをクリックしてください。</p>
+            <br><br><p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+        `,
+        prompt: `
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
+                     alt="数直線" 
+                     style="max-width: 80%; height: auto;">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+                <div class="jspsych-html-button-response-btngroup" style="display: flex; gap: 10px;">
+                    <button class="jspsych-btn">1</button>
+                    <button class="jspsych-btn">2</button>
+                    <button class="jspsych-btn">3</button>
+                    <button class="jspsych-btn">4</button>
+                    <button class="jspsych-btn">5</button>
+                    <button class="jspsych-btn">6</button>
+                </div>
+                <span style="margin-left: 20px; font-weight: bold;">自然である</span>
+            </div>
+        `,
+        choices: ["1", "2", "3", "4", "5", "6"],
+        data: {
+            practice: true, // 練習用であることを示すデータ
+            correct_choice: "5" // 正解は「5」
+        },
+        on_finish: function(data) {
+            // 選択した回答が正しいかチェック
+            if (data.response !== 4) { // 配列のインデックスでチェック (4 = "5"の位置)
+                // jsPsych.timelineVariableを利用して、再度練習試行を追加
+                jsPsych.addNodeToEndOfTimeline({
+                    timeline: [mainPractice]
+                });
+                alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
+            }
         }
-      }
-    };
+   };
     
    // 本試行：操作
    var mainTrials = [];
@@ -304,15 +321,33 @@
            stimulus: `
                <div>
                    <audio id="audio-player" src="${trial.file}" autoplay></audio>
+                   <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+                   <div style="text-align: center; margin: 20px 0;">
+                       <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
+                            alt="数直線" 
+                            style="max-width: 80%; height: auto;">
+                   </div>
                </div>
            `,
-           prompt: `
-               <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
-               <div style="text-align: center;">
-                   <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" alt="数直線" style="max-width: 80%; height: auto; margin-bottom: 20px;">
+           choices: ["1", "2", "3", "4", "5", "6"],
+           button_html: `
+               <div style="display: flex; align-items: center; justify-content: center;">
+                   <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+                   %choice_buttons%
+                   <span style="margin-left: 20px; font-weight: bold;">自然である</span>
                </div>
            `,
-           choices: ["不自然である: 1", "2", "3", "4", "5", "6: 自然である"],
+           on_load: function() {
+               // ボタンの間に挿入するカスタムHTML
+               const container = document.querySelector(".jspsych-html-button-response-btngroup");
+               if (container) {
+                   let buttonsHtml = "";
+                   for (let i = 0; i < 6; i++) {
+                       buttonsHtml += `<button class="jspsych-btn">${i + 1}</button>`;
+                   }
+                   container.innerHTML = buttonsHtml;
+               }
+           },
            data: {
                word: trial.word,
                prosody: trial.prosody,
