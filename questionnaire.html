@@ -311,6 +311,29 @@
             }
         }
    };
+
+     // 本試行：教示（再掲）
+    var mainInstruction2 = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <h1>調査内容（再掲）</h1>
+        <p>これから調査を始めます。</p>
+        <p style="text-align: left;">この調査では、<b>話し方の自然さ</b>を調べます。</p>
+        <p style="text-align: left;">提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を判断してください。</p>
+        <style>
+          ul, li {
+            text-align: left;
+          }
+        </style>
+        <ul>
+            <li><b>留意事項１:</b><br>提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
+            <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
+            <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
+        </ul>
+        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください。</b>
+      `,
+      choices: [' ']
+    };
     
    // 本試行：操作
    var mainTrials = [];
@@ -402,6 +425,7 @@
         volumeAdjustment,   // 音量調整フェイズ：操作
         mainInstruction,    // 本試行：教示
         mainPractice,       // 本試行：練習
+        mainInstruction2,    // 本試行：教示（再掲）
         ...mainTrials,      // 本試行：操作
         showCode,           // 終了時のコード提示
         save_data           // データ保存
