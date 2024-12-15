@@ -22,6 +22,12 @@
       message: `<p>調査を開始するには「続ける」ボタンをクリックして、フルスクリーンモードに切り替えてください。</p>`,
       button_label: "続ける"
     };
+
+    // 参加者番号を取得または自動生成
+    var participantId = jsPsych.data.getURLVariable('participant_id');
+    if (!participantId) {
+        participantId = Math.floor(Math.random() * 1000) + 1; // ランダムで1から1000のIDを生成
+    }
     
     // 音声データリスト
     var audioData = [
@@ -188,9 +194,6 @@
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word160_no.mp3", word: 'うんまかせ', prosody: '抑揚なし' },
     ];
 
-    // 参加者IDの取得
-    var participantId = jsPsych.data.getURLVariable('participant_id') || 1;
-
     // 提示順を決定
     var trialOrder;
     if (participantId % 2 === 1) {
@@ -198,6 +201,12 @@
     } else {
         trialOrder = audioData.slice().reverse(); // 偶数番目の参加者: 逆順
     }
+
+    // 参加者番号をデータに追加
+    jsPsych.data.addProperties({
+        participant_id: participantId,
+        trial_order: trialOrder
+    });
     
     // プリロード設定
     var preload = {
@@ -395,9 +404,11 @@
                }
            },
            data: {
-               word: trial.word,
-               prosody: trial.prosody,
-               trial_index: index + 1
+               participant_id: participantId, // 参加者IDを記録
+               audio_file: trial.file,       // 提示された音声ファイル名を記録
+               word: trial.word,             // 単語情報
+               prosody: trial.prosody,       // 抑揚情報
+               trial_index: index + 1        // 試行番号
            },
            trial_ends_after_audio: true  // 音声が再生された後に試行を終了
        });
