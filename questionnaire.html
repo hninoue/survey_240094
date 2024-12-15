@@ -359,23 +359,26 @@
                    </div>
                </div>
            `,
-           choices: ["1", "2", "3", "4", "5", "6"],
-           button_html: `
+           prompt: `
                <div style="display: flex; align-items: center; justify-content: center;">
                    <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                   %choice_buttons%
+                   <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
                    <span style="margin-left: 20px; font-weight: bold;">自然である</span>
                </div>
            `,
-           on_load: function() {
-               // ボタンの間に挿入するカスタムHTML
-               const container = document.querySelector(".jspsych-html-button-response-btngroup");
-               if (container) {
-                   let buttonsHtml = "";
-                   for (let i = 0; i < 6; i++) {
-                       buttonsHtml += `<button class="jspsych-btn">${i + 1}</button>`;
-                   }
-                   container.innerHTML = buttonsHtml;
+           choices: [], // デフォルトのボタン生成を無効化
+           on_load: function () {
+               // カスタムボタンの生成と挿入
+               const buttonContainer = document.getElementById("custom-button-container");
+               for (let i = 0; i < 6; i++) {
+                   const button = document.createElement("button");
+                   button.classList.add("jspsych-btn");
+                   button.innerText = i + 1; // ボタンに番号を表示
+                   button.dataset.choice = i; // 選択値を設定
+                   button.addEventListener("click", function () {
+                       jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
+                   });
+                   buttonContainer.appendChild(button);
                }
            },
            data: {
