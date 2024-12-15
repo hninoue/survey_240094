@@ -273,15 +273,15 @@
             <br><br><p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
         `,
         prompt: `
-            <div style="text-align: center; margin-bottom: 28px;">
+            <div style="text-align: center; margin-bottom: 20px;">
                 <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
                      alt="数直線" 
-                     style="max-width: 100%; height: auto;">
+                     style="max-width: 80%; height: auto;">
             </div>
             <div style="display: flex; align-items: center; justify-content: center;">
-                <span style="margin-right: 28px; font-weight: bold;">不自然である</span>
-                <div id="custom-button-container" style="display: flex; gap: 12px;"></div>
-                <span style="margin-left: 28px; font-weight: bold;">自然である</span>
+                <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+                <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
+                <span style="margin-left: 20px; font-weight: bold;">自然である</span>
             </div>
         `,
         choices: [], // ボタン生成を無効化
@@ -293,6 +293,10 @@
                 button.classList.add("jspsych-btn");
                 button.innerText = i + 1; // ボタンに番号を表示
                 button.dataset.choice = i; // 選択値を設定
+                button.style.fontSize = "24px"; // 文字サイズを大きく
+                button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
+                button.style.width = "80px"; // ボタンの幅を設定
+                button.style.height = "80px"; // ボタンの高さを設定
                 button.addEventListener("click", function () {
                     let response = parseInt(this.dataset.choice);
                     if (response !== 4) {
