@@ -357,89 +357,89 @@
       choices: [' ']
     };
     
-   // 本試行：操作
-   var mainTrials = [];
-   trialOrder.forEach(function(trial, index) {
-       // 音声提示と自然さの評価を同時に行う
-       mainTrials.push({
-           type: jsPsychHtmlButtonResponse, // 一つの画面で提示
-           stimulus: `
-               <div>
-                   <audio id="audio-player" src="${trial.file}" autoplay></audio>
-                   <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
-                   <div style="text-align: center; margin: 20px 0;">
-                       <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
-                            alt="数直線" 
-                            style="max-width: 80%; height: auto;">
-                   </div>
-               </div>
-           `,
-           prompt: `
-               <div style="display: flex; align-items: center; justify-content: center;">
-                   <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                   <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
-                   <span style="margin-left: 20px; font-weight: bold;">自然である</span>
-               </div>
-           `,
-           choices: [], // デフォルトのボタン生成を無効化
-           on_load: function () {
-               // カスタムボタンの生成と挿入
-               const buttonContainer = document.getElementById("custom-button-container");
-               if (buttonContainer) {
-                   console.log("Button container found, adding buttons."); // ログで確認
-                   for (let i = 0; i < 6; i++) {
-                       const button = document.createElement("button");
-                       button.classList.add("jspsych-btn");
-                       button.innerText = i + 1; // ボタンに番号を表示
-                       button.dataset.choice = i; // 選択値を設定
-                       button.style.fontSize = "24px"; // 文字サイズを大きく
-                       button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
-                       button.style.width = "80px"; // ボタンの幅を設定
-                       button.style.height = "80px"; // ボタンの高さを設定
-                       button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
-                       button.style.marginLeft = "15px";  // ボタンを左に15px移動
-                       button.addEventListener("click", function () {
-                           jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
-                       });
-                       buttonContainer.appendChild(button);
-                   }
-               } else {
-                   console.log("Button container not found."); // コンテナが見つからなかった場合のログ
-               }
-           },
-           data: {
-               participant_id: participantId, // 参加者IDを記録
-               audio_file: trial.file,       // 提示された音声ファイル名を記録
-               word: trial.word,             // 単語情報
-               prosody: trial.prosody,       // 抑揚情報
-               trial_index: index + 1        // 試行番号
-           },
-           trial_ends_after_audio: true  // 音声が再生された後に試行を終了
-       });
+    // 本試行：操作
+    var mainTrials = [];
+    trialOrder.forEach(function(trial, index) {
+        // 音声提示と自然さの評価を同時に行う
+        mainTrials.push({
+            type: jsPsychHtmlButtonResponse, // 一つの画面で提示
+            stimulus: `
+                <div>
+                    <audio id="audio-player" src="${trial.file}" autoplay></audio>
+                    <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
+                             alt="数直線" 
+                             style="max-width: 80%; height: auto;">
+                    </div>
+                </div>
+            `,
+            prompt: `
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+                    <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
+                    <span style="margin-left: 20px; font-weight: bold;">自然である</span>
+                </div>
+            `,
+            choices: [], // デフォルトのボタン生成を無効化
+            on_load: function () {
+                // カスタムボタンの生成と挿入
+                const buttonContainer = document.getElementById("custom-button-container");
+                if (buttonContainer) {
+                    console.log("Button container found, adding buttons."); // ログで確認
+                    for (let i = 0; i < 6; i++) {
+                        const button = document.createElement("button");
+                        button.classList.add("jspsych-btn");
+                        button.innerText = i + 1; // ボタンに番号を表示
+                        button.dataset.choice = i; // 選択値を設定
+                        button.style.fontSize = "24px"; // 文字サイズを大きく
+                        button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
+                        button.style.width = "80px"; // ボタンの幅を設定
+                        button.style.height = "80px"; // ボタンの高さを設定
+                        button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
+                        button.style.marginLeft = "15px";  // ボタンを左に15px移動
+                        button.addEventListener("click", function () {
+                            jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
+                        });
+                        buttonContainer.appendChild(button);
+                    }
+                } else {
+                    console.log("Button container not found."); // コンテナが見つからなかった場合のログ
+                }
+            },
+            data: {
+                participant_id: participantId, // 参加者IDを記録
+                audio_file: trial.file,       // 提示された音声ファイル名を記録
+                word: trial.word,             // 単語情報
+                prosody: trial.prosody,       // 抑揚情報
+                trial_index: index + 1        // 試行番号
+            },
+            trial_ends_after_audio: true  // 音声が再生された後に試行を終了
+        });
 
-       // 80試行目終了後に休憩を挿入
-       if ((index + 1) === 80) {
-           mainTrials.push({
-               type: jsPsychHtmlButtonResponse,
-               stimulus: `
-                   <h1>休憩</h1>
-                   <p>30秒の休憩時間です。</p>
-                   <p>画面に表示された「再開」ボタンが有効になるまでお待ちください。</p>
-                   <p>ヘッドフォンまたはイヤフォンを装着したまま、リラックスしてその場でお待ちください。</p>
-               `,
-               choices: ['再開'], // 「再開」ボタンを表示
-               prompt: `<p id="timer-message"></p>`, // タイマーのメッセージを表示
-               button_html: `<button class="jspsych-btn" id="resume-button" disabled>%choice%</button>`, // ボタンを無効化
-               on_load: function () {
-                   // 30秒後にボタンを有効化
-                   setTimeout(() => {
-                       document.getElementById("resume-button").disabled = false; // ボタンを有効化
-                       document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
-                   }, 30000);
-               }
-           });
-       }
-    }
+        // 80試行目終了後に休憩を挿入
+        if ((index + 1) === 80) {
+            mainTrials.push({
+                type: jsPsychHtmlButtonResponse,
+                stimulus: `
+                    <h1>休憩</h1>
+                    <p>30秒の休憩時間です。</p>
+                    <p>画面に表示された「再開」ボタンが有効になるまでお待ちください。</p>
+                    <p>ヘッドフォンまたはイヤフォンを装着したまま、リラックスしてその場でお待ちください。</p>
+                `,
+                choices: ['再開'], // 「再開」ボタンを表示
+                prompt: `<p id="timer-message"></p>`, // タイマーのメッセージを表示
+                button_html: `<button class="jspsych-btn" id="resume-button" disabled>%choice%</button>`, // ボタンを無効化
+                on_load: function () {
+                    // 30秒後にボタンを有効化
+                    setTimeout(() => {
+                        document.getElementById("resume-button").disabled = false; // ボタンを有効化
+                        document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
+                    }, 30000);
+                },
+            });
+        }
+    });
 
     // ファイル名としてsubject_idを使用
     const subject_id = jsPsych.randomization.randomID(10);
