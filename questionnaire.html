@@ -15,8 +15,8 @@
   <script>
     const jsPsych = initJsPsych();
 
-    // フルスクリーンのリクエスト関数
-    var enter_fullscreen = {
+    // フルスクリーン
+    var enterFullscreen = {
       type: jsPsychFullscreen,
       fullscreen_mode: true
     }
@@ -450,7 +450,8 @@
 
     // 実験の実行
     jsPsych.run([
-        preload,            // 音声のプリロード
+        enterFullscreen,    // フルスクリーン
+        preload,            // 刺激のプリロード
         volumeInstruction,  // 音量調整フェイズ：教示
         volumeAdjustment,   // 音量調整フェイズ：操作
         mainInstruction,    // 本試行：教示
