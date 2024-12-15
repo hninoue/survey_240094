@@ -430,13 +430,13 @@
         choices: [' ']
     };
 
-    // save_data試行
+    // saveData試行
     var saveData = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: `<p>データが保存されました。</p>`,
         choices: "NO_KEYS", // キー入力なし
         on_finish: function() {
-            // save_data試行後にメッセージを表示する新しい試行を追加
+            // saveData試行後にメッセージを表示する新しい試行を追加
             jsPsych.addNodeToEndOfTimeline({
                 type: jsPsychHtmlKeyboardResponse,
                 stimulus: `
@@ -466,7 +466,7 @@
         mainInstruction2,   // 本試行：教示（再掲）
         ...mainTrials,      // 本試行：操作
         showCode,           // 終了時のコード提示
-        save_data           // データ保存
+        saveData           // データ保存
     ]);
   </script>
 </html>
