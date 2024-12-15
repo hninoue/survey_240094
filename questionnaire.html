@@ -448,7 +448,7 @@
                 type: jsPsychPipe,
                 action: "save",
                 experiment_id: "ZWmEpETHLVnZ",  // 実験IDを指定
-                filename: "experiment_data.csv",  // ファイル名
+                filename: filename,  // ファイル名
                 data_string: () => jsPsych.data.get().csv()  // 実験データをCSVフォーマットで取得
             };
             // jsPsychのパイプラインに追加
