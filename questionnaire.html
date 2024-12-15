@@ -22,12 +22,6 @@
       message: `<p>調査を開始するには「続ける」ボタンをクリックして、フルスクリーンモードに切り替えてください。</p>`,
       button_label: "続ける"
     };
-
-    // 参加者番号を取得または自動生成
-    var participantId = jsPsych.data.getURLVariable('participant_id');
-    if (!participantId) {
-        participantId = Math.floor(Math.random() * 1000) + 1; // ランダムで1から1000のIDを生成
-    }
     
     // 音声データリスト
     var audioData = [
@@ -194,18 +188,28 @@
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word160_no.mp3", word: 'うんまかせ', prosody: '抑揚なし' },
     ];
 
-    // 提示順を決定
-    var trialOrder;
-    if (participantId % 2 === 1) {
-        trialOrder = audioData; // 奇数番目の参加者: そのままの順番
-    } else {
-        trialOrder = audioData.slice().reverse(); // 偶数番目の参加者: 逆順
+    // 参加者番号を取得または自動生成
+    var participantId = jsPsych.data.getURLVariable('participant_id');
+    if (!participantId) {
+        participantId = Math.floor(Math.random() * 1000) + 1; // ランダムで1から1000のIDを生成
     }
 
-    // 参加者番号をデータに追加
+    // 音声データの分割
+    var volumeAdjustmentAudio = audioData[0]; // 音量調整フェイズ用の音声（常に最初の音声）
+    var mainAudioData = audioData.slice(1);   // 本試行用の音声（2番目から最後まで）
+
+    // 本試行の提示順を決定
+    var trialOrder;
+    if (participantId % 2 === 1) {
+        trialOrder = mainAudioData; // 奇数番目の参加者: そのままの順番
+    } else {
+        trialOrder = mainAudioData.slice().reverse(); // 偶数番目の参加者: 逆順
+    }
+
+    // 参加者番号をデータに記録
     jsPsych.data.addProperties({
         participant_id: participantId,
-        trial_order: trialOrder
+        trial_order: trialOrder.map(trial => trial.file) // 提示順の音声ファイル名を記録
     });
     
     // プリロード設定
@@ -240,7 +244,7 @@
     // 音量調整フェイズ：操作
     var volumeAdjustment = {
       type: jsPsychAudioKeyboardResponse,
-      stimulus: trialOrder[0].file, // 音声ファイルのURLを直接指定
+      stimulus: volumeAdjustmentAudio.file, // リストの最初の音声ファイルを指定
       prompt: `
         <h1>音量調整</h1>
         <p>聞こえやすい音量に調整してください。</p>
@@ -355,7 +359,7 @@
     
    // 本試行：操作
    var mainTrials = [];
-   trialOrder.slice(1).forEach(function(trial, index) {
+   trialOrder.forEach(function(trial, index) {
        // 音声提示と自然さの評価を同時に行う
        mainTrials.push({
            type: jsPsychHtmlButtonResponse, // 一つの画面で提示
@@ -416,17 +420,25 @@
        // 80試行目終了後に休憩を挿入
        if ((index + 1) === 80) {
            mainTrials.push({
-               type: jsPsychHtmlKeyboardResponse,
+               type: jsPsychHtmlButtonResponse,
                stimulus: `
                    <h1>休憩</h1>
-                   <p>休憩時間は30秒です。経過後、自動的に調査を再開します。</p>
-                   <p>ヘッドフォンをつけたまま、リラックスしてその場でお待ちください。</p>
+                   <p>30秒の休憩時間です。</p>
+                   <p>画面に表示された「再開」ボタンが有効になるまでお待ちください。</p>
+                   <p>ヘッドフォンまたはイヤフォンを装着したまま、リラックスしてその場でお待ちください。</p>
                `,
-               choices: "NO_KEYS",
-               trial_duration: 30000 // 30秒
+               choices: ['再開'], // 「再開」ボタンを表示
+               prompt: `<p id="timer-message"></p>`, // タイマーのメッセージを表示
+               button_html: `<button class="jspsych-btn" id="resume-button" disabled>%choice%</button>`, // ボタンを無効化
+               on_load: function () {
+                   // 30秒後にボタンを有効化
+                   setTimeout(() => {
+                       document.getElementById("resume-button").disabled = false; // ボタンを有効化
+                       document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
+                   }, 30000);
+               }
            });
        }
-    });
 
     // ファイル名としてsubject_idを使用
     const subject_id = jsPsych.randomization.randomID(10);
