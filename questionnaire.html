@@ -279,9 +279,9 @@
                      style="max-width: 80%; height: auto;">
             </div>
             <div style="display: flex; align-items: center; justify-content: center;">
-                <span style="margin-right: 20px; font-weight: bold;">不自然<br>である</span>
+                <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
                 <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
-                <span style="margin-left: 20px; font-weight: bold;">自然<br>である</span>
+                <span style="margin-left: 20px; font-weight: bold;">自然である</span>
             </div>
         `,
         choices: [], // ボタン生成を無効化
@@ -379,6 +379,12 @@
                        button.classList.add("jspsych-btn");
                        button.innerText = i + 1; // ボタンに番号を表示
                        button.dataset.choice = i; // 選択値を設定
+                       button.style.fontSize = "24px"; // 文字サイズを大きく
+                       button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
+                       button.style.width = "80px"; // ボタンの幅を設定
+                       button.style.height = "80px"; // ボタンの高さを設定
+                       button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
+                       button.style.marginLeft = "15px";  // ボタンを左に15px移動
                        button.addEventListener("click", function () {
                            jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
                        });
@@ -432,8 +438,9 @@
                 </style>
                 <ul>
                     <li><b>お願い１:</b><br>Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
-                    <li><b>お願い２:</b><br>右のコードを控えてください: <strong>${subject_id}</strong></li>
+                    <li><b>お願い２:</b><br>下記の英数字コードをメモ（コピー＆ペースト）してください。<br>それが困難な場合には，スクリーンショットを保存してください。
                 </ul>
+                <br><br><b>英数字コード: <strong>${subject_id}</strong></b>
                 <br><br><b>コードを控えることができましたら、スペースキーを押してください</b>
             `;
         },
