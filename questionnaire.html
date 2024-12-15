@@ -27,8 +27,13 @@
         docElement.msRequestFullscreen();
       }
     }
+
+    // 画像データリスト
+    var imageList = [
+        "https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png"
+    ];
     
-    // 音声データリスト（OSFの公開URLを指定）
+    // 音声データリスト
     var audioData = [
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word000_practice.mp3", word: 'けんとうし', prosody: '音量調整' },
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word001_up.mp3", word: 'すききらい', prosody: '抑揚あり' },
@@ -204,7 +209,10 @@
         trialOrder = audioData.slice().reverse(); // 偶数番目の参加者: 逆順
     }
 
-    // プリロード設定
+    // 画像のプリロード設定
+    jsPsych.pluginAPI.preloadImages(imageList);
+    
+    // 音声のプリロード設定
     var preload = {
       type: jsPsychPreload,
       audio: trialOrder.map(item => item.file) // 使用する音声ファイルをすべてプリロード
@@ -429,13 +437,30 @@
         choices: [' ']
     };
 
-    // データ保存用の設定
-    const save_data = {
-        type: jsPsychPipe,
-        action: "save",
-        experiment_id: "ZWmEpETHLVnZ", // OSFでの実験ID
-        filename: `${participantId}.csv`, // ファイル名に参加者IDを使用
-        data_string: () => jsPsych.data.get().csv()
+    // save_data試行
+    var saveData = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `<p>データが保存されました。</p>`,
+        choices: "NO_KEYS", // キー入力なし
+        on_finish: function() {
+            // save_data試行後にメッセージを表示する新しい試行を追加
+            jsPsych.addNodeToEndOfTimeline({
+                type: jsPsychHtmlKeyboardResponse,
+                stimulus: `
+                    <p style="text-align: left;">改めまして、</p>
+                    <p style="text-align: left;">調査にご協力くださり誠にありがとうございました。</p>
+                    <p style="text-align: left;"><b>下記のURLをコピーして、新しいブラウザを開き、URLを貼り付けてください。</b></p>
+                    <p style="text-align: left;">＊URLは、謝礼を送るのに必要な情報を記入していただくGoogleフォームにつながっています。</p>
+                    <br><br><p>https://forms.gle/fLSUF5Epfn5qnCWYA</p>
+                    <br><br><b>上記の手順を終えましたら、こちらのブラウザを閉じてください。</b>
+                `,
+                choices: "NO_KEYS",  // キー入力を無効化
+                on_finish: function() {
+                    // メッセージ表示後、実験を終了
+                    jsPsych.endExperiment();
+                }
+            });
+        }
     };
 
     // 実験の実行
@@ -445,7 +470,7 @@
         volumeAdjustment,   // 音量調整フェイズ：操作
         mainInstruction,    // 本試行：教示
         mainPractice,       // 本試行：練習
-        mainInstruction2,    // 本試行：教示（再掲）
+        mainInstruction2,   // 本試行：教示（再掲）
         ...mainTrials,      // 本試行：操作
         showCode,           // 終了時のコード提示
         save_data           // データ保存
