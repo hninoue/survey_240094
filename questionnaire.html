@@ -273,15 +273,15 @@
             <br><br><p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
         `,
         prompt: `
-            <div style="text-align: center; margin-bottom: 20px;">
+            <div style="text-align: center; margin-bottom: 28px;">
                 <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
                      alt="数直線" 
-                     style="max-width: 80%; height: auto;">
+                     style="max-width: 100%; height: auto;">
             </div>
             <div style="display: flex; align-items: center; justify-content: center;">
-                <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
-                <span style="margin-left: 20px; font-weight: bold;">自然である</span>
+                <span style="margin-right: 28px; font-weight: bold;">不自然である</span>
+                <div id="custom-button-container" style="display: flex; gap: 12px;"></div>
+                <span style="margin-left: 28px; font-weight: bold;">自然である</span>
             </div>
         `,
         choices: [], // ボタン生成を無効化
@@ -409,11 +409,11 @@
     var showCode = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function() {
-            // ランダムコードを生成
-            var randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            // subject_idを生成（既存のランダムID）
+            const subject_id = jsPsych.randomization.randomID(10);
 
-            // コードをデータに追加
-            jsPsych.data.addDataToLastTrial({ end_code: randomCode });
+            // subject_idをデータに追加
+            jsPsych.data.addDataToLastTrial({ subject_id: subject_id });
 
             return `
                 <h1>調査終了</h1>
@@ -425,13 +425,16 @@
                 </style>
                 <ul>
                     <li><b>お願い１:</b><br>Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
-                    <li><b>お願い２:</b><br>右のコードを控えてください: <strong>${randomCode}</strong></li>
+                    <li><b>お願い２:</b><br>右のコードを控えてください: <strong>${subject_id}</strong></li>
                 </ul>
                 <br><br><b>コードを控えることができましたら、スペースキーを押してください</b>
             `;
         },
         choices: [' ']
     };
+
+    // ファイル名としてsubject_idを使用
+    const filename = `${subject_id}.csv`;
 
     // データ保存用の設定
     const save_data = {
@@ -440,29 +443,6 @@
         experiment_id: "ZWmEpETHLVnZ", // OSFでの実験ID
         filename: `${participantId}.csv`, // ファイル名に参加者IDを使用
         data_string: () => jsPsych.data.get().csv()
-          
-    // saveData試行
-    var saveData = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: `
-            <p>データが保存されました。</p>
-            <br><br><p>画面が自動で切り替わりますので，ブラウザを閉じずにそのままお待ちください。</p>
-        `,
-        choices: "NO_KEYS", // キー入力なし
-        trial_duration: 2000, // 2秒後に次の試行へ自動遷移
-        on_finish: function() {
-            // データをOSFに保存するためのsave_data
-            const save_data = {
-                type: jsPsychPipe,
-                action: "save",
-                experiment_id: "ZWmEpETHLVnZ",  // 実験IDを指定
-                filename: filename,  // ファイル名
-                data_string: () => jsPsych.data.get().csv()  // 実験データをCSVフォーマットで取得
-            };
-            // jsPsychのパイプラインに追加
-            jsPsych.addNodeToEndOfTimeline(save_data);
-        }
-    };
 
     // saveDataの後に表示する試行
     var finalMessage = {
