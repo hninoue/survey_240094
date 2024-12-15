@@ -24,6 +24,19 @@
       data_string: ()=>jsPsych.data.get().csv()
     };
 
-    jsPsych.run([hello_trial, save_data]);
+     var finalMessage = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+            <p style="text-align: left;">改めまして、</p>
+            <p style="text-align: left;">調査にご協力くださり誠にありがとうございました。</p>
+            <p style="text-align: left;"><b>下記のURLをコピーして、新しいブラウザを開き、URLを貼り付けてください。</b></p>
+            <p style="text-align: left;">＊URLは、謝礼を送るのに必要な情報を記入していただくGoogleフォームにつながっています。</p>
+            <br><br><p>https://forms.gle/fLSUF5Epfn5qnCWYA</p>
+            <br><br><b>上記の手順を終えましたら、こちらのブラウザを閉じてください。</b>
+        `,
+        choices: "NO_KEYS", // キー入力なし
+    };
+
+    jsPsych.run([hello_trial, save_data, final Message]);
   </script>
 </html>
