@@ -295,10 +295,20 @@
                 <span style="margin-left: 20px; font-weight: bold;">自然である</span>
             </div>
         `,
-        choices: ["1", "2", "3", "4", "5", "6"],
+        choices: [], // ボタン生成を無効化
         data: {
             practice: true, // 練習用であることを示すデータ
             correct_choice: "5" // 正解は「5」
+        },
+        on_load: function() {
+            // ボタンがクリックされたときの挙動を設定
+            document.querySelectorAll('.jspsych-btn').forEach((button, index) => {
+                button.addEventListener('click', () => {
+                    jsPsych.finishTrial({
+                        response: index, // 選択されたボタンのインデックスを記録
+                    });
+                });
+            });
         },
         on_finish: function(data) {
             // 選択した回答が正しいかチェック
@@ -310,9 +320,9 @@
                 alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
             }
         }
-   };
+    };
 
-     // 本試行：教示（再掲）
+    // 本試行：教示（再掲）
     var mainInstruction2 = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `
