@@ -405,13 +405,14 @@
        }
     });
 
+    // ファイル名としてsubject_idを使用
+    const subject_id = jsPsych.randomization.randomID(10);
+    const filename = `${subject_id}.csv`; 
+
     // 終了時のコード提示
     var showCode = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function() {
-            // subject_idを生成（既存のランダムID）
-            const subject_id = jsPsych.randomization.randomID(10);
-
             // subject_idをデータに追加
             jsPsych.data.addDataToLastTrial({ subject_id: subject_id });
 
@@ -433,10 +434,7 @@
         choices: [' ']
     };
 
-    // ファイル名としてsubject_idを使用
-    const filename = `${subject_id}.csv`;
-
-    
+    //データ保存
     const save_data = {
       type: jsPsychPipe,
       action: "save",
