@@ -434,6 +434,18 @@
         `,
         choices: "NO_KEYS", // キー入力なし
         trial_duration: 2000, // 2秒後に次の試行へ自動遷移
+        on_finish: function() {
+            // データをOSFに保存するためのsave_data
+            const save_data = {
+                type: jsPsychPipe,
+                action: "save",
+                experiment_id: "ZWmEpETHLVnZ",  // 実験IDを指定
+                filename: "experiment_data.csv",  // ファイル名
+                data_string: () => jsPsych.data.get().csv()  // 実験データをCSVフォーマットで取得
+            };
+            // jsPsychのパイプラインに追加
+            jsPsych.addNodeToEndOfTimeline(save_data);
+        }
     };
 
     // saveDataの後に表示する試行
