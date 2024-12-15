@@ -227,7 +227,7 @@
             <li><b>お願い３</b><br>ヘッドフォンまたはイヤフォンを装着してください。</li>
             <li><b>お願い４</b><br>次画面においてテスト音声が流れますので、聞こえやすい音量に調整してください。</li>
         </ul>
-        <br><br><b>上記の内容について準備できましたら、スペースキーを押してください。</b>
+        <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
       `,
       choices: [' ']
     };
@@ -263,7 +263,7 @@
             <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
             <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
         </ul>
-        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください。</b>
+        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（回答練習へ）</b>
       `,
       choices: [' ']
     };
@@ -284,41 +284,38 @@
             </div>
             <div style="display: flex; align-items: center; justify-content: center;">
                 <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                <div class="jspsych-html-button-response-btngroup" style="display: flex; gap: 10px;">
-                    <button class="jspsych-btn">1</button>
-                    <button class="jspsych-btn">2</button>
-                    <button class="jspsych-btn">3</button>
-                    <button class="jspsych-btn">4</button>
-                    <button class="jspsych-btn">5</button>
-                    <button class="jspsych-btn">6</button>
-                </div>
+                <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
                 <span style="margin-left: 20px; font-weight: bold;">自然である</span>
             </div>
         `,
         choices: [], // ボタン生成を無効化
+        on_load: function () {
+            // カスタムボタンの生成と挿入
+            const buttonContainer = document.getElementById("custom-button-container");
+            for (let i = 0; i < 6; i++) {
+                const button = document.createElement("button");
+                button.classList.add("jspsych-btn");
+                button.innerText = i + 1; // ボタンに番号を表示
+                button.dataset.choice = i; // 選択値を設定
+                button.addEventListener("click", function () {
+                    let response = parseInt(this.dataset.choice);
+                    if (response !== 4) {
+                        // 「5」を選択しなければ再試行を追加
+                        jsPsych.addNodeToEndOfTimeline({
+                            timeline: [mainPractice]
+                        });
+                        alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
+                    } else {
+                        // 正解の場合、試行を終了
+                        jsPsych.finishTrial({ response: response });
+                    }
+                });
+                buttonContainer.appendChild(button);
+            }
+        },
         data: {
             practice: true, // 練習用であることを示すデータ
             correct_choice: "5" // 正解は「5」
-        },
-        on_load: function() {
-            // ボタンがクリックされたときの挙動を設定
-            document.querySelectorAll('.jspsych-btn').forEach((button, index) => {
-                button.addEventListener('click', () => {
-                    jsPsych.finishTrial({
-                        response: index, // 選択されたボタンのインデックスを記録
-                    });
-                });
-            });
-        },
-        on_finish: function(data) {
-            // 選択した回答が正しいかチェック
-            if (data.response !== 4) { // 配列のインデックスでチェック (4 = "5"の位置)
-                // jsPsych.timelineVariableを利用して、再度練習試行を追加
-                jsPsych.addNodeToEndOfTimeline({
-                    timeline: [mainPractice]
-                });
-                alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
-            }
         }
     };
 
@@ -340,7 +337,7 @@
             <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
             <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
         </ul>
-        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください。</b>
+        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（本試行へ）</b>
       `,
       choices: [' ']
     };
@@ -414,7 +411,7 @@
                 <li><b>お願い１:</b> Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
                 <li><b>お願い２:</b> 以下のコードを控えてください: <strong>${Math.random().toString(36).substring(2, 8).toUpperCase()}</strong></li>
             </ul>
-            <p><b>コードを控えることができましたら、スペースキーを押してください。</b></p>
+            <p><b>コードを控えることができましたら、スペースキーを押してください</b></p>
         `,
         choices: [' ']
     };
