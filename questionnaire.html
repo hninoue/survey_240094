@@ -188,29 +188,8 @@
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word160_no.mp3", word: 'うんまかせ', prosody: '抑揚なし' },
     ];
 
-    // 参加者番号を取得または自動生成
-    var participantId = jsPsych.data.getURLVariable('participant_id');
-    if (!participantId) {
-        participantId = Math.floor(Math.random() * 1000) + 1; // ランダムで1から1000のIDを生成
-    }
-
-    // 音声データの分割
-    var volumeAdjustmentAudio = audioData[0]; // 音量調整フェイズ用の音声（常に最初の音声）
-    var mainAudioData = audioData.slice(1);   // 本試行用の音声（2番目から最後まで）
-
     // 本試行の提示順を決定
-    var trialOrder;
-    if (participantId % 2 === 1) {
-        trialOrder = mainAudioData; // 奇数番目の参加者: そのままの順番
-    } else {
-        trialOrder = mainAudioData.slice().reverse(); // 偶数番目の参加者: 逆順
-    }
-
-    // 参加者番号をデータに記録
-    jsPsych.data.addProperties({
-        participant_id: participantId,
-        trial_order: trialOrder.map(trial => trial.file) // 提示順の音声ファイル名を記録
-    });
+    var trialOrder = mainAudioData; // すべての参加者でリスト順をそのまま使用
     
     // プリロード設定
     var preload = {
