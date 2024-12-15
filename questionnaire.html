@@ -370,15 +370,20 @@
            on_load: function () {
                // カスタムボタンの生成と挿入
                const buttonContainer = document.getElementById("custom-button-container");
-               for (let i = 0; i < 6; i++) {
-                   const button = document.createElement("button");
-                   button.classList.add("jspsych-btn");
-                   button.innerText = i + 1; // ボタンに番号を表示
-                   button.dataset.choice = i; // 選択値を設定
-                   button.addEventListener("click", function () {
-                       jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
-                   });
-                   buttonContainer.appendChild(button);
+               if (buttonContainer) {
+                   console.log("Button container found, adding buttons."); // ログで確認
+                   for (let i = 0; i < 6; i++) {
+                       const button = document.createElement("button");
+                       button.classList.add("jspsych-btn");
+                       button.innerText = i + 1; // ボタンに番号を表示
+                       button.dataset.choice = i; // 選択値を設定
+                       button.addEventListener("click", function () {
+                           jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
+                       });
+                       buttonContainer.appendChild(button);
+                   }
+               } else {
+                   console.log("Button container not found."); // コンテナが見つからなかった場合のログ
                }
            },
            data: {
