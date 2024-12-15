@@ -433,6 +433,14 @@
         choices: [' ']
     };
 
+    // データ保存用の設定
+    const save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "ZWmEpETHLVnZ", // OSFでの実験ID
+        filename: `${participantId}.csv`, // ファイル名に参加者IDを使用
+        data_string: () => jsPsych.data.get().csv()
+          
     // saveData試行
     var saveData = {
         type: jsPsychHtmlKeyboardResponse,
@@ -481,7 +489,7 @@
         mainInstruction2,   // 本試行：教示（再掲）
         ...mainTrials,      // 本試行：操作
         showCode,           // 終了時のコード提示
-        saveData,           // データ保存
+        save_data,           // データ保存
         finalMessage        // 最後のメッセージ
     ]);
   </script>
