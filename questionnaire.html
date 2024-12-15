@@ -436,13 +436,14 @@
     // ファイル名としてsubject_idを使用
     const filename = `${subject_id}.csv`;
 
-    // データ保存用の設定
+    
     const save_data = {
-        type: jsPsychPipe,
-        action: "save",
-        experiment_id: "ZWmEpETHLVnZ", // OSFでの実験ID
-        filename: `${participantId}.csv`, // ファイル名に参加者IDを使用
-        data_string: () => jsPsych.data.get().csv()
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: "ZWmEpETHLVnZ",
+      filename: filename,
+      data_string: ()=>jsPsych.data.get().csv()
+    };
 
     // saveDataの後に表示する試行
     var finalMessage = {
