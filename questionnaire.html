@@ -415,11 +415,16 @@
         stimulus: `
             <h1>調査終了</h1>
             <p>調査にご協力くださり誠にありがとうございました。</p>
+            <style>
+              ul, li {
+                text-align: left;
+              }
+            </style>
             <ul>
-                <li><b>お願い１:</b> Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
-                <li><b>お願い２:</b> 以下のコードを控えてください: <strong>${Math.random().toString(36).substring(2, 8).toUpperCase()}</strong></li>
+                <li><b>お願い１:</b><br>Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
+                <li><b>お願い２:</b><br>右のコードを控えてください: <strong>${Math.random().toString(36).substring(2, 8).toUpperCase()}</strong></li>
             </ul>
-            <p><b>コードを控えることができましたら、スペースキーを押してください</b></p>
+            <br><br><b>コードを控えることができましたら、スペースキーを押してください</b>
         `,
         choices: [' ']
     };
