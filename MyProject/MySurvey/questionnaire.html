@@ -9,44 +9,33 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.3"></script>
     <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js"></script>
     <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-
+    // firebase.jsのインポート
+    import { initializeApp } from '../vite-survey.240094/src/firebase.js';
+    import { getDatabase, ref, get, set } from 'firebase/database'; // Realtime Database用のモジュールをインポート
+  
+    // Firebaseの初期化
     const firebaseConfig = {
-      apiKey: "",
-      authDomain: "",
-      databaseURL: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: "1:532363065184:web:
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
     };
-    
+  
+    // Firebaseアプリの初期化
     const app = initializeApp(firebaseConfig);
+  
+    console.log("Firebase initialized");
   </script>
   <script>
-      // jsPsychの初期化
-      const jsPsych = initJsPsych();
-
-      // Realtime Databaseの参照を取得
-      const database = firebase.database();
-
-      // 現在の参加者IDを取得し、新しいIDを設定
-      const participantRef = database.ref('current_participant_id');
-      participantRef.get().then(snapshot => {
-          let currentId = snapshot.exists() ? snapshot.val() : 0;
-          let nextId = currentId + 1;
-          participantRef.set(nextId); // 次のIDをデータベースに保存
-          console.log("次の参加者ID:", nextId); // 次のIDをコンソールに表示
-      }).catch(error => {
-          console.error("エラーが発生しました:", error);
-      });
+    // jsPsychの初期化
+    const jsPsych = initJsPsych();
 
     // フルスクリーン
     var enterFullscreen = {
@@ -220,30 +209,44 @@
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word159_up.mp3", word: 'やくはらい', prosody: '抑揚あり' },
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word160_no.mp3", word: 'うんまかせ', prosody: '抑揚なし' },
     ];
-
-    // 参加者番号を取得
-    var participantId = jsPsych.data.getURLVariable('participant_id');
-    if (!participantId) {
-        alert('参加者番号が指定されていません。URLに ?participant_id=xxx を含めてください。');
-        throw new Error('Participant ID is missing in the URL.');
-    }
     
+    // Realtime Databaseの参照を取得
+    const database = getDatabase(app);
+
     // 音声データの分割
     var volumeAdjustmentAudio = audioData[0]; // 音量調整フェイズ用の音声（常に最初の音声）
     var mainAudioData = audioData.slice(1);   // 本試行用の音声（2番目から最後まで）
-    
-    // 本試行の提示順を決定
-    var trialOrder;
-    if (participantId % 2 === 1) {
-        trialOrder = mainAudioData; // 奇数番目の参加者: そのままの順番
-    } else {
-        trialOrder = mainAudioData.slice().reverse(); // 偶数番目の参加者: 逆順
-    }
-    
-    // 参加者番号をデータに記録
-    jsPsych.data.addProperties({
-        participant_id: participantId,
-        trial_order: trialOrder.map(trial => trial.file) // 提示順の音声ファイル名を記録
+
+    // 現在の参加者IDを取得し、新しいIDを設定
+    const participantRef = ref(database, 'current_participant_id');
+    get(participantRef).then(snapshot => {
+        let currentId = snapshot.exists() ? snapshot.val() : 0; // データが存在しない場合はID=0
+        let nextId = currentId + 1;
+        set(participantRef, nextId); // 次のIDをデータベースに保存
+        console.log("次の参加者ID:", nextId); // 次のIDをコンソールに表示
+
+        // 音声データリストの順番を決定（正順または逆順）
+        let trialOrder;
+        if (nextId % 2 === 1) {
+            // 奇数: 音声データリストの正順を提示
+            console.log("奇数：音声データリストの正順を提示します");
+            trialOrder = mainAudioData;  // 正順
+        } else {
+            // 偶数: 音声データリストの逆順を提示
+            console.log("偶数：音声データリストの逆順を提示します");
+            trialOrder = mainAudioData.reverse();  // 逆順
+        }
+
+        console.log(trialOrder);  // 正順または逆順の音声データを表示
+
+        // 音声データの順番をjsPsychデータに追加
+        jsPsych.data.addProperties({
+            participant_id: nextId,
+            trial_order: trialOrder // 提示順の音声ファイル名を記録
+        });
+
+    }).catch(error => {
+    console.error("エラーが発生しました:", error);
     });
     
     // プリロード設定
