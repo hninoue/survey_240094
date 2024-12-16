@@ -1,12 +1,12 @@
 // FirebaseのSDKをインポート
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getDatabase, ref, set, get } from "firebase/database"; // Realtime Database用のインポート
 
 // Firebaseの設定
 const firebaseConfig = {
   apiKey: "AIzaSyCOBCaYXL8rOyy8Ckw32mibo0GCjjnAGaw",
   authDomain: "survey-240094.firebaseapp.com",
-  databaseURL: "https://survey-240094-default-rtdb.firebaseio.com",
+  databaseURL: "https://survey-240094-default-rtdb.firebaseio.com",  // Realtime DatabaseのURL
   projectId: "survey-240094",
   storageBucket: "survey-240094.firebasestorage.app",
   messagingSenderId: "532363065184",
@@ -15,6 +15,6 @@ const firebaseConfig = {
 
 // Firebaseを初期化
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const database = getDatabase(app); // Realtime Databaseの参照を取得
 
-export { db };
+export { database, ref, set, get }; // 必要なRealtime Databaseのメソッドをエクスポート
