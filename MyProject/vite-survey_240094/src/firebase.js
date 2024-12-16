@@ -1,6 +1,6 @@
-// FirebaseのSDKをインポート
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, get } from "firebase/database"; // Realtime Database用のインポート
+// Firebase SDKのインポート
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
 
 // Firebaseの設定
 const firebaseConfig = {
@@ -13,8 +13,9 @@ const firebaseConfig = {
   appId: "1:532363065184:web:9a3f0cf100fb660d2b5005",
 };
 
-// Firebaseを初期化
+// Firebaseの初期化
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app); // Realtime Databaseの参照を取得
+const database = getDatabase(app); // Firebase Realtime Databaseの初期化
 
-export { database, ref, set, get }; // 必要なRealtime Databaseのメソッドをエクスポート
+// 必要に応じてエクスポート
+export { database, ref, get, set };
