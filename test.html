@@ -235,6 +235,13 @@
                 participant_id: nextNumber, // 数字のIDを使用
                 trial_order: trialOrder.map(item => item.file) // 提示順の音声ファイル名を記録
             });
+
+            // プリロード設定（trialOrderが定義された後に設定）
+            const preload = {
+              type: jsPsychPreload,
+              audio: trialOrder.map(item => item.file), // 音声ファイルをプリロード
+              images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/MyProject/MySurvey/image000_scale.png"]
+            };
         });
       });
 
