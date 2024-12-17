@@ -251,8 +251,6 @@
         console.error("匿名認証エラー:", error);
       });
 
-    // 実験の初期化関数
-    function initJsPsychExperiment(jsPsych, trialOrder, nextNumber) {
       // プリロード設定
       var preload = {
         type: jsPsychPreload,
@@ -302,7 +300,6 @@
         choices: [' '],
         trial_ends_after_audio: false, // 音声が再生されても試行が終了しない
       };
-    };
 
     jsPsych.run([preload, enterFullscreen, volumeInstruction, volumeAdjustment]);
   </script>
