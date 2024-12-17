@@ -251,13 +251,11 @@
         console.error("匿名認証エラー:", error);
       });
 
-
     // 実験の初期化関数
     function initJsPsychExperiment(jsPsych, trialOrder, nextNumber) {
       // プリロード設定
       const preload = {
         type: jsPsychPreload,
-        auto_preload: false, // ファイルを明示的に指定
         audio: trialOrder.map(item => item.file), // 音声ファイルをプリロード
         images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/MyProject/MySurvey/image000_scale.png"]
       };
