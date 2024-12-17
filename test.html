@@ -259,8 +259,51 @@
         audio: trialOrder.map(item => item.file), // 音声ファイルをプリロード
         images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/MyProject/MySurvey/image000_scale.png"]
       };
+
+      // フルスクリーン
+      var enterFullscreen = {
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        message: `<p>調査を開始するには「続ける」ボタンをクリックして、フルスクリーンモードに切り替えてください。</p>`,
+        button_label: "続ける"
+      };
+
+      // 音量調整フェイズ：教示
+      var volumeInstruction = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <h1>事前準備</h1>
+          <p>これから調査の準備を始めます。</p>
+          <style>
+            ul, li {
+              text-align: left;
+            }
+          </style>
+          <ul>
+              <li><b>お願い１</b><br>パソコン以外の機器の電源をOFFにして雑音が聞こえないようにしてください。</li>
+              <li><b>お願い２</b><br>１人きりになれる静かな環境に移動してください。</li>
+              <li><b>お願い３</b><br>ヘッドフォンまたはイヤフォンを装着してください。</li>
+              <li><b>お願い４</b><br>次画面においてテスト音声が流れますので、聞こえやすい音量に調整してください。</li>
+          </ul>
+          <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
+        `,
+        choices: [' ']
+      };
+
+      // 音量調整フェイズ：操作
+      var volumeAdjustment = {
+        type: jsPsychAudioKeyboardResponse,
+        stimulus: volumeAdjustmentAudio.file, // リストの最初の音声ファイルを指定
+        prompt: `
+          <h1>音量調整</h1>
+          <p>聞こえやすい音量に調整してください。</p>
+          <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
+        `,
+        choices: [' '],
+        trial_ends_after_audio: false, // 音声が再生されても試行が終了しない
+      };
     };
 
-    jsPsych.run([preload]);
+    jsPsych.run([preload, enterFullscreen, volumeInstruction, volumeAdjustment]);
   </script>
 </html>
