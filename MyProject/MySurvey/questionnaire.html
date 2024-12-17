@@ -211,17 +211,17 @@
         const user = auth.currentUser;
         console.log("参加者ID:", user.uid);
 
-        // Firebase Realtime Databaseの参加者IDの取得と更新
-        const participantRef = ref(database, 'current_participant_id');
+        // Firebase Realtime Databaseの参加者番号の取得と更新
+        const participantRef = ref(database, 'current_participant_number');
         get(participantRef).then(snapshot => {
-            let currentId = snapshot.exists() ? snapshot.val() : 0; // データが存在しない場合はID=0
-            let nextId = currentId + 1;
-            set(participantRef, nextId); // 次のIDをデータベースに保存
-            console.log("次の参加者ID:", nextId);
+            let currentNumber = snapshot.exists() ? snapshot.val() : 0; // データが存在しない場合は0
+            let nextNumber = currentNumber + 1; // 次の番号を決定
+            set(participantRef, nextNumber); // 次の番号をデータベースに保存
+            console.log("次の参加者ID:", nextNumber);
 
             // 音声データリストの順番を決定（正順または逆順）
             let trialOrder;
-            if (nextId % 2 === 1) {
+            if (nextNumber % 2 === 1) {
                 trialOrder = mainAudioData; // 正順
             } else {
                 trialOrder = mainAudioData.reverse(); // 逆順
@@ -229,12 +229,12 @@
 
             // 参加者情報をjsPsychデータに追加
             jsPsych.data.addProperties({
-                participant_id: user.uid, // FirebaseユーザーIDを使う
+                participant_id: nextNumber, // 数字のIDを使用
                 trial_order: trialOrder    // 提示順の音声ファイル名を記録
             });
 
             // jsPsychの初期化をここで実行
-            initJsPsychExperiment(trialOrder, user.uid);
+            initJsPsychExperiment(trialOrder, nextNumber);
 
         }).catch(error => {
             console.error("エラーが発生しました:", error);
@@ -246,7 +246,7 @@
       });
 
     // 実験の初期化関数
-    function initJsPsychExperiment(trialOrder, participantId) {
+    function initJsPsychExperiment(trialOrder, nextNumber) {
       // プリロード設定
       var preload = {
         type: jsPsychPreload,
