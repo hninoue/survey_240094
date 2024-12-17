@@ -206,7 +206,7 @@
     signInAnonymously(auth)
       .then(() => {
         console.log('匿名認証に成功しました');
-        
+
         // サインイン後、ユーザーIDを取得
         const user = auth.currentUser;
         console.log("参加者ID:", user.uid);
@@ -227,30 +227,38 @@
                 trialOrder = mainAudioData.reverse(); // 逆順
             }
 
+            // jsPsychの初期化
+            const jsPsych = initJsPsych({
+              on_finish: function() {
+                console.log("実験が完了しました");
+              }
+            });
+
             // 参加者情報をjsPsychデータに追加
             jsPsych.data.addProperties({
                 participant_id: nextNumber, // 数字のIDを使用
-                trial_order: trialOrder    // 提示順の音声ファイル名を記録
+                trial_order: trialOrder.map(item => item.file) // 提示順の音声ファイル名を記録
             });
 
-            // jsPsychの初期化をここで実行
-            initJsPsychExperiment(trialOrder, nextNumber);
+            // jsPsychの初期化関数を実行
+            initJsPsychExperiment(jsPsych, trialOrder, nextNumber);
 
         }).catch(error => {
             console.error("エラーが発生しました:", error);
         });
-
       })
       .catch((error) => {
         console.error("匿名認証エラー:", error);
       });
 
+
     // 実験の初期化関数
-    function initJsPsychExperiment(trialOrder, nextNumber) {
+    function initJsPsychExperiment(jsPsych, trialOrder, nextNumber) {
       // プリロード設定
-      var preload = {
+      const preload = {
         type: jsPsychPreload,
-        audio: trialOrder.map(item => item.file), // 使用する音声ファイルをすべてプリロード
+        auto_preload: false, // ファイルを明示的に指定
+        audio: trialOrder.map(item => item.file), // 音声ファイルをプリロード
         images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/MyProject/MySurvey/image000_scale.png"]
       };
 
