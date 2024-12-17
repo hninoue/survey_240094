@@ -245,13 +245,6 @@
         });
       });
 
-      // プリロード設定
-      var preload = {
-        type: jsPsychPreload,
-        audio: trialOrder.map(item => item.file), // 音声ファイルをプリロード
-        images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/MyProject/MySurvey/image000_scale.png"]
-      };
-
       // フルスクリーン
       var enterFullscreen = {
         type: jsPsychFullscreen,
