@@ -530,7 +530,7 @@
         data_string: ()=>jsPsych.data.get().csv()
       };
 
-      // saveDataの後に表示する試行
+      // save_dataの後に表示する試行
       var finalMessage = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: `
@@ -547,8 +547,8 @@
 
     // 実験の実行
     jsPsych.run([
-      enterFullscreen,    // フルスクリーン
       preload,            // 刺激のプリロード
+      enterFullscreen,    // フルスクリーン
       volumeInstruction,  // 音量調整フェイズ：教示
       volumeAdjustment,   // 音量調整フェイズ：操作
       mainInstruction,    // 本試行：教示
