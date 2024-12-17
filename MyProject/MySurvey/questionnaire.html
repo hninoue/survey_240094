@@ -3,48 +3,36 @@
   <head>
     <title>調査_井上</title>
     <script src="https://unpkg.com/jspsych@7.3.4"></script>
+    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.2.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
     <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script type="module">
-    // firebase.jsのインポート
-    import { initializeApp } from '../vite-survey_240094/src/firebase.js';
-    import { getDatabase, ref, get, set } from '../vite-survey_240094/src/firebase.js'; // Realtime Database用のモジュールをインポート
-  
+    // Firebaseのインポート
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js';
+    import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js';
+
     // Firebaseの初期化
     const firebaseConfig = {
-      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-      databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+      apiKey: "AIzaSyCOBCaYXL8rOyy8Ckw32mibo0GCjjnAGaw",
+      authDomain: "survey-240094.firebaseapp.com",
+      databaseURL: "https://survey-240094-default-rtdb.firebaseio.com",
+      projectId: "survey-240094",
+      storageBucket: "survey-240094.firebasestorage.app",
+      messagingSenderId: "532363065184",
+      appId: "1:532363065184:web:9a3f0cf100fb660d2b5005"
     };
-  
-    // Firebaseアプリの初期化
-    const app = initializeApp(firebaseConfig);
-    // Firebase初期化後にログ出力
-    console.log("Firebase initialized");
-  </script>
-  <script>
-    // jsPsychの初期化
-    const jsPsych = initJsPsych();
 
-    // フルスクリーン
-    var enterFullscreen = {
-      type: jsPsychFullscreen,
-      fullscreen_mode: true,
-      message: `<p>調査を開始するには「続ける」ボタンをクリックして、フルスクリーンモードに切り替えてください。</p>`,
-      button_label: "続ける"
-    };
-    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);  // Firebase Authenticationのインスタンス
+    const database = getDatabase(app);  // Realtime Databaseのインスタンス
+
     // 音声データリスト
     var audioData = [
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word000_practice.mp3", word: 'けんとうし', prosody: '音量調整' },
@@ -209,136 +197,240 @@
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word159_up.mp3", word: 'やくはらい', prosody: '抑揚あり' },
       { file: "https://raw.githubusercontent.com/hninoue/survey_240094/main/word160_no.mp3", word: 'うんまかせ', prosody: '抑揚なし' },
     ];
-    
-    // Realtime Databaseの参照を取得
-    const database = getDatabase(app);
 
     // 音声データの分割
-    var volumeAdjustmentAudio = audioData[0]; // 音量調整フェイズ用の音声（常に最初の音声）
-    var mainAudioData = audioData.slice(1);   // 本試行用の音声（2番目から最後まで）
+    var volumeAdjustmentAudio = audioData[0]; // 音量調整フェイズ用の音声
+    var mainAudioData = audioData.slice(1);   // 本試行用の音声
 
-    // 現在の参加者IDを取得し、新しいIDを設定
-    const participantRef = ref(database, 'current_participant_id');
-    get(participantRef).then(snapshot => {
-        let currentId = snapshot.exists() ? snapshot.val() : 0; // データが存在しない場合はID=0
-        let nextId = currentId + 1;
-        set(participantRef, nextId); // 次のIDをデータベースに保存
-        console.log("次の参加者ID:", nextId); // 次のIDをコンソールに表示
+    // Firebaseの匿名認証を実行
+    signInAnonymously(auth)
+      .then(() => {
+        console.log('匿名認証に成功しました');
+        
+        // サインイン後、ユーザーIDを取得
+        const user = auth.currentUser;
+        console.log("参加者ID:", user.uid);
 
-        // 音声データリストの順番を決定（正順または逆順）
-        let trialOrder;
-        if (nextId % 2 === 1) {
-            // 奇数: 音声データリストの正順を提示
-            console.log("奇数：音声データリストの正順を提示します");
-            trialOrder = mainAudioData;  // 正順
-        } else {
-            // 偶数: 音声データリストの逆順を提示
-            console.log("偶数：音声データリストの逆順を提示します");
-            trialOrder = mainAudioData.reverse();  // 逆順
-        }
+        // Firebase Realtime Databaseの参加者IDの取得と更新
+        const participantRef = ref(database, 'current_participant_id');
+        get(participantRef).then(snapshot => {
+            let currentId = snapshot.exists() ? snapshot.val() : 0; // データが存在しない場合はID=0
+            let nextId = currentId + 1;
+            set(participantRef, nextId); // 次のIDをデータベースに保存
+            console.log("次の参加者ID:", nextId);
 
-        console.log(trialOrder);  // 正順または逆順の音声データを表示
+            // 音声データリストの順番を決定（正順または逆順）
+            let trialOrder;
+            if (nextId % 2 === 1) {
+                trialOrder = mainAudioData; // 正順
+            } else {
+                trialOrder = mainAudioData.reverse(); // 逆順
+            }
 
-        // 音声データの順番をjsPsychデータに追加
-        jsPsych.data.addProperties({
-            participant_id: nextId,
-            trial_order: trialOrder // 提示順の音声ファイル名を記録
+            // 参加者情報をjsPsychデータに追加
+            jsPsych.data.addProperties({
+                participant_id: user.uid, // FirebaseユーザーIDを使う
+                trial_order: trialOrder    // 提示順の音声ファイル名を記録
+            });
+
+            // jsPsychの初期化をここで実行
+            initJsPsychExperiment(trialOrder, user.uid);
+
+        }).catch(error => {
+            console.error("エラーが発生しました:", error);
         });
 
-    }).catch(error => {
-    console.error("エラーが発生しました:", error);
-    });
-    
-    // プリロード設定
-    var preload = {
-      type: jsPsychPreload,
-      audio: trialOrder.map(item => item.file), // 使用する音声ファイルをすべてプリロード
-      images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png"]
-    };
+      })
+      .catch((error) => {
+        console.error("匿名認証エラー:", error);
+      });
 
-    // 音量調整フェイズ：教示
-    var volumeInstruction = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <h1>事前準備</h1>
-        <p>これから調査の準備を始めます。</p>
-        <style>
-          ul, li {
-            text-align: left;
-          }
-        </style>
-        <ul>
-            <li><b>お願い１</b><br>パソコン以外の機器の電源をOFFにして雑音が聞こえないようにしてください。</li>
-            <li><b>お願い２</b><br>１人きりになれる静かな環境に移動してください。</li>
-            <li><b>お願い３</b><br>ヘッドフォンまたはイヤフォンを装着してください。</li>
-            <li><b>お願い４</b><br>次画面においてテスト音声が流れますので、聞こえやすい音量に調整してください。</li>
-        </ul>
-        <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
-      `,
-      choices: [' ']
-    };
+    // 実験の初期化関数
+    function initJsPsychExperiment(trialOrder, participantId) {
+      // プリロード設定
+      var preload = {
+        type: jsPsychPreload,
+        audio: trialOrder.map(item => item.file), // 使用する音声ファイルをすべてプリロード
+        images: ["https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png"]
+      };
 
-    // 音量調整フェイズ：操作
-    var volumeAdjustment = {
-      type: jsPsychAudioKeyboardResponse,
-      stimulus: volumeAdjustmentAudio.file, // リストの最初の音声ファイルを指定
-      prompt: `
-        <h1>音量調整</h1>
-        <p>聞こえやすい音量に調整してください。</p>
-        <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
-      `,
-      choices: [' '],
-      trial_ends_after_audio: false, // 音声が再生されても試行が終了しない
-    };
+      // フルスクリーン
+      var enterFullscreen = {
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        message: `<p>調査を開始するには「続ける」ボタンをクリックして、フルスクリーンモードに切り替えてください。</p>`,
+        button_label: "続ける"
+      };
 
-    // 本試行：教示
-    var mainInstruction = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <h1>調査内容</h1>
-        <p>これから調査を始めます。</p>
-        <p style="text-align: left;">この調査では、<b>話し方の自然さ</b>を調べます。</p>
-        <p style="text-align: left;">提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を6段階で判断してください。</p>
-        <style>
-          ul, li {
-            text-align: left;
-          }
-        </style>
-        <ul>
-            <li><b>留意事項１:</b><br>提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
-            <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
-            <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
-        </ul>
-        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（回答練習へ）</b>
-      `,
-      choices: [' ']
-    };
+      // 音量調整フェイズ：教示
+      var volumeInstruction = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <h1>事前準備</h1>
+          <p>これから調査の準備を始めます。</p>
+          <style>
+            ul, li {
+              text-align: left;
+            }
+          </style>
+          <ul>
+              <li><b>お願い１</b><br>パソコン以外の機器の電源をOFFにして雑音が聞こえないようにしてください。</li>
+              <li><b>お願い２</b><br>１人きりになれる静かな環境に移動してください。</li>
+              <li><b>お願い３</b><br>ヘッドフォンまたはイヤフォンを装着してください。</li>
+              <li><b>お願い４</b><br>次画面においてテスト音声が流れますので、聞こえやすい音量に調整してください。</li>
+          </ul>
+          <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
+        `,
+        choices: [' ']
+      };
 
-    // 本試行：練習
-    var mainPractice = {
+      // 音量調整フェイズ：操作
+      var volumeAdjustment = {
+        type: jsPsychAudioKeyboardResponse,
+        stimulus: volumeAdjustmentAudio.file, // リストの最初の音声ファイルを指定
+        prompt: `
+          <h1>音量調整</h1>
+          <p>聞こえやすい音量に調整してください。</p>
+          <br><br><b>上記の内容について準備できましたら、スペースキーを押してください</b>
+        `,
+        choices: [' '],
+        trial_ends_after_audio: false, // 音声が再生されても試行が終了しない
+      };
+
+      // 本試行：教示
+      var mainInstruction = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <h1>調査内容</h1>
+          <p>これから調査を始めます。</p>
+          <p style="text-align: left;">この調査では、<b>話し方の自然さ</b>を調べます。</p>
+          <p style="text-align: left;">提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を6段階で判断してください。</p>
+          <style>
+            ul, li {
+              text-align: left;
+            }
+          </style>
+          <ul>
+              <li><b>留意事項１:</b><br>提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
+              <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
+              <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
+          </ul>
+          <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（回答練習へ）</b>
+        `,
+        choices: [' ']
+      };
+
+      // 本試行：練習
+      var mainPractice = {
         type: jsPsychHtmlButtonResponse,
         stimulus: `
-            <h1>回答練習</h1>
-            <p>「5: やや自然である」と回答する場合を想定して、「5」のボタンをクリックしてみてください。</p>
-            <br><br><p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+          <h1>回答練習</h1>
+          <p>「5: やや自然である」と回答する場合を想定して、「5」のボタンをクリックしてみてください。</p>
+          <br><br><p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
         `,
         prompt: `
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
-                     alt="数直線" 
-                     style="max-width: 80%; height: auto;">
-            </div>
-            <div style="display: flex; align-items: center; justify-content: center;">
-                <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
-                <span style="margin-left: 20px; font-weight: bold;">自然である</span>
-            </div>
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
+              alt="数直線" 
+              style="max-width: 80%; height: auto;">
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+            <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
+            <span style="margin-left: 20px; font-weight: bold;">自然である</span>
+          </div>
         `,
         choices: [], // ボタン生成を無効化
         on_load: function () {
+          // カスタムボタンの生成と挿入
+          const buttonContainer = document.getElementById("custom-button-container");
+          for (let i = 0; i < 6; i++) {
+            const button = document.createElement("button");
+            button.classList.add("jspsych-btn");
+            button.innerText = i + 1; // ボタンに番号を表示
+            button.dataset.choice = i; // 選択値を設定
+            button.style.fontSize = "24px"; // 文字サイズを大きく
+            button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
+            button.style.width = "80px"; // ボタンの幅を設定
+            button.style.height = "80px"; // ボタンの高さを設定
+            button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
+            button.style.marginLeft = "15px";  // ボタンを左に15px移動
+            button.addEventListener("click", function () {
+              let response = parseInt(this.dataset.choice);
+              if (response !== 4) {
+                // 「5」を選択しなければ再試行を追加
+                jsPsych.addNodeToEndOfTimeline({
+                  timeline: [mainPractice]
+                });
+                alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
+              } else {
+                // 正解の場合、試行を終了
+                jsPsych.finishTrial({ response: response });
+              }
+            });
+            buttonContainer.appendChild(button);
+         }
+        },
+        data: {
+          practice: true, // 練習用であることを示すデータ
+          correct_choice: "5" // 正解は「5」
+        }
+      };
+
+      // 本試行：教示（再掲）
+      var mainInstruction2 = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: `
+          <h1>調査内容（再掲）</h1>
+          <p>これから調査を始めます。</p>
+          <p style="text-align: left;">この調査では、<b>話し方の自然さ</b>を調べます。</p>
+          <p style="text-align: left;">提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を6段階で判断してください。</p>
+          <style>
+            ul, li {
+              text-align: left;
+            }
+          </style>
+          <ul>
+              <li><b>留意事項１:</b><br>提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
+              <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
+              <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
+          </ul>
+          <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（本試行へ）</b>
+        `,
+        choices: [' ']
+      };
+
+      // 本試行：操作
+      var mainTrials = [];
+      trialOrder.forEach(function(trial, index) {
+        // 音声提示と自然さの評価を同時に行う
+        mainTrials.push({
+          type: jsPsychHtmlButtonResponse, // 一つの画面で提示
+          stimulus: `
+            <div>
+              <audio id="audio-player" src="${trial.file}" autoplay></audio>
+              <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
+              <div style="text-align: center; margin: 20px 0;">
+                <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
+                     alt="数直線" 
+                     style="max-width: 80%; height: auto;">
+              </div>
+            </div>
+          `,
+          prompt: `
+            <div style="display: flex; align-items: center; justify-content: center;">
+              <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
+              <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
+              <span style="margin-left: 20px; font-weight: bold;">自然である</span>
+            </div>
+          `,
+          choices: [], // デフォルトのボタン生成を無効化
+          on_load: function () {
             // カスタムボタンの生成と挿入
             const buttonContainer = document.getElementById("custom-button-container");
-            for (let i = 0; i < 6; i++) {
+            if (buttonContainer) {
+              console.log("ボタンコンテナが見つかりました。ボタンを追加します。"); // ログで確認
+              for (let i = 0; i < 6; i++) {
                 const button = document.createElement("button");
                 button.classList.add("jspsych-btn");
                 button.innerText = i + 1; // ボタンに番号を表示
@@ -350,200 +442,122 @@
                 button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
                 button.style.marginLeft = "15px";  // ボタンを左に15px移動
                 button.addEventListener("click", function () {
-                    let response = parseInt(this.dataset.choice);
-                    if (response !== 4) {
-                        // 「5」を選択しなければ再試行を追加
-                        jsPsych.addNodeToEndOfTimeline({
-                            timeline: [mainPractice]
-                        });
-                        alert("正しい回答を選択してください。「5: やや自然である」をクリックしてください。");
-                    } else {
-                        // 正解の場合、試行を終了
-                        jsPsych.finishTrial({ response: response });
-                    }
+                  jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
                 });
                 buttonContainer.appendChild(button);
+              }
+            } else {
+              console.log("ボタンコンテナが見つかりませんでした。"); // コンテナが見つからなかった場合のログ
             }
-        },
-        data: {
-            practice: true, // 練習用であることを示すデータ
-            correct_choice: "5" // 正解は「5」
-        }
-    };
-
-    // 本試行：教示（再掲）
-    var mainInstruction2 = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: `
-        <h1>調査内容（再掲）</h1>
-        <p>これから調査を始めます。</p>
-        <p style="text-align: left;">この調査では、<b>話し方の自然さ</b>を調べます。</p>
-        <p style="text-align: left;">提示された音声が、<b>どの程度自然に話しているように聞こえるか</b>を判断してください。</p>
-        <style>
-          ul, li {
-            text-align: left;
-          }
-        </style>
-        <ul>
-            <li><b>留意事項１:</b><br>提示された音声について<u>自然だと思う場合</u>は<b>大きな数字</b>を、<u>不自然だと思う場合</u>は<b>小さな数字</b>を選択してください。</li>
-            <li><b>留意事項２:</b><br>試行数は全部で160試行ですが、80試行目で約30秒間の小休憩を取ります。</li>
-            <li><b>留意事項３:</b><br>同じ言葉が何回も流れますが、気にする必要はありません。</li>
-        </ul>
-        <br><br><b>上記の内容について理解できましたら、スペースキーを押してください（本試行へ）</b>
-      `,
-      choices: [' ']
-    };
-    
-    // 本試行：操作
-    var mainTrials = [];
-    trialOrder.forEach(function(trial, index) {
-        // 音声提示と自然さの評価を同時に行う
-        mainTrials.push({
-            type: jsPsychHtmlButtonResponse, // 一つの画面で提示
-            stimulus: `
-                <div>
-                    <audio id="audio-player" src="${trial.file}" autoplay></audio>
-                    <p><b>質問:</b> この音声はどの程度自然に話しているように聞こえますか？</p>
-                    <div style="text-align: center; margin: 20px 0;">
-                        <img src="https://raw.githubusercontent.com/hninoue/survey_240094/main/image000_scale.png" 
-                             alt="数直線" 
-                             style="max-width: 80%; height: auto;">
-                    </div>
-                </div>
-            `,
-            prompt: `
-                <div style="display: flex; align-items: center; justify-content: center;">
-                    <span style="margin-right: 20px; font-weight: bold;">不自然である</span>
-                    <div id="custom-button-container" style="display: flex; gap: 10px;"></div>
-                    <span style="margin-left: 20px; font-weight: bold;">自然である</span>
-                </div>
-            `,
-            choices: [], // デフォルトのボタン生成を無効化
-            on_load: function () {
-                // カスタムボタンの生成と挿入
-                const buttonContainer = document.getElementById("custom-button-container");
-                if (buttonContainer) {
-                    console.log("Button container found, adding buttons."); // ログで確認
-                    for (let i = 0; i < 6; i++) {
-                        const button = document.createElement("button");
-                        button.classList.add("jspsych-btn");
-                        button.innerText = i + 1; // ボタンに番号を表示
-                        button.dataset.choice = i; // 選択値を設定
-                        button.style.fontSize = "24px"; // 文字サイズを大きく
-                        button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
-                        button.style.width = "80px"; // ボタンの幅を設定
-                        button.style.height = "80px"; // ボタンの高さを設定
-                        button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
-                        button.style.marginLeft = "15px";  // ボタンを左に15px移動
-                        button.addEventListener("click", function () {
-                            jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
-                        });
-                        buttonContainer.appendChild(button);
-                    }
-                } else {
-                    console.log("Button container not found."); // コンテナが見つからなかった場合のログ
-                }
-            },
-            data: {
-                participant_id: participantId, // 参加者IDを記録
-                audio_file: trial.file,       // 提示された音声ファイル名を記録
-                word: trial.word,             // 単語情報
-                prosody: trial.prosody,       // 抑揚情報
-                trial_index: index + 1        // 試行番号
-            },
-            trial_ends_after_audio: true  // 音声が再生された後に試行を終了
+      
+            // 音声が準備できたら試行を開始
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.oncanplaythrough = function() {
+              // 音声が準備完了したら試行を終了させる
+              console.log("音声がロードされ、再生準備が整いました。");
+            };
+          },
+          data: {
+            participant_id: participantId, // 参加者IDを記録
+            audio_file: trial.file,       // 提示された音声ファイル名を記録
+            word: trial.word,             // 単語情報
+            prosody: trial.prosody,       // 抑揚情報
+            trial_index: index + 1        // 試行番号
+          },
+          trial_ends_after_audio: true  // 音声が再生された後に試行を終了
         });
 
         // 80試行目終了後に休憩を挿入
         if ((index + 1) === 80) {
-            mainTrials.push({
-                type: jsPsychHtmlButtonResponse,
-                stimulus: `
-                    <h1>休憩</h1>
-                    <p>30秒の休憩時間です。</p>
-                    <p>画面に表示された「再開」ボタンが有効になるまでお待ちください。</p>
-                    <p>ヘッドフォンまたはイヤフォンを装着したまま、リラックスしてその場でお待ちください。</p>
-                `,
-                choices: ['再開'], // 「再開」ボタンを表示
-                prompt: `<p id="timer-message"></p>`, // タイマーのメッセージを表示
-                button_html: `<button class="jspsych-btn" id="resume-button" disabled>%choice%</button>`, // ボタンを無効化
-                on_load: function () {
-                    // 30秒後にボタンを有効化
-                    setTimeout(() => {
-                        document.getElementById("resume-button").disabled = false; // ボタンを有効化
-                        document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
-                    }, 30000);
-                },
-            });
+          mainTrials.push({
+            type: jsPsychHtmlButtonResponse,
+            stimulus: `
+              <h1>休憩</h1>
+              <p>30秒の休憩時間です。</p>
+              <p>画面に表示された「再開」ボタンが有効になるまでお待ちください。</p>
+              <p>ヘッドフォンまたはイヤフォンを装着したまま、リラックスしてその場でお待ちください。</p>
+            `,
+            choices: ['再開'], // 「再開」ボタンを表示
+            prompt: `<p id="timer-message"></p>`, // タイマーのメッセージを表示
+            button_html: `<button class="jspsych-btn" id="resume-button" disabled>%choice%</button>`, // ボタンを無効化
+            on_load: function () {
+              // 30秒後にボタンを有効化
+              setTimeout(() => {
+                document.getElementById("resume-button").disabled = false; // ボタンを有効化
+                document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
+              }, 30000);
+            },
+         });
         }
-    });
+      });
 
-    // ファイル名としてsubject_idを使用
-    const subject_id = jsPsych.randomization.randomID(10);
-    const filename = `${subject_id}.csv`; 
+      // ファイル名としてsubject_idを使用
+      const subject_id = jsPsych.randomization.randomID(10);
+      const filename = `${subject_id}.csv`; 
 
-    // 終了時のコード提示
-    var showCode = {
+      // 終了時のコード提示
+      var showCode = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function() {
-            // subject_idをデータに追加
-            jsPsych.data.addDataToLastTrial({ subject_id: subject_id });
+          // subject_idをデータに追加
+          jsPsych.data.addDataToLastTrial({ subject_id: subject_id });
 
-            return `
-                <h1>調査終了</h1>
-                <p>調査にご協力くださり誠にありがとうございました。</p>
-                <style>
-                  ul, li {
-                    text-align: left;
-                  }
-                </style>
-                <ul>
-                    <li><b>お願い１:</b><br>Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
-                    <li><b>お願い２:</b><br>下記の英数字コードをメモ（コピー＆ペースト）してください。<br>それが困難な場合には，スクリーンショットを保存してください。
-                </ul>
-                <br><br><b>英数字コード: <strong>${subject_id}</strong></b>
-                <br><br><b>コードを控えることができましたら、スペースキーを押してください</b>
-            `;
+          return `
+            <h1>調査終了</h1>
+            <p>調査にご協力くださり誠にありがとうございました。</p>
+            <style>
+              ul, li {
+                text-align: left;
+              }
+            </style>
+            <ul>
+              <li><b>お願い１:</b><br>Amazonギフト券をお送りするために、法政Gmailアドレスが必要です。</li>
+              <li><b>お願い２:</b><br>下記の英数字コードをメモ（コピー＆ペースト）してください。<br>それが困難な場合には，スクリーンショットを保存してください。</li>
+            </ul>
+            <br><br><b>英数字コード: <strong>${subject_id}</strong></b>
+            <br><br><b>コードを控えることができましたら、スペースキーを押してください</b>
+          `;
         },
         choices: [' ']
-    };
+      };
 
-    //データ保存
-    const save_data = {
-      type: jsPsychPipe,
-      action: "save",
-      experiment_id: "ZWmEpETHLVnZ",
-      filename: filename,
-      data_string: ()=>jsPsych.data.get().csv()
-    };
+      //データ保存
+      const save_data = {
+        type: jsPsychPipe,
+        action: "save",
+        experiment_id: "ZWmEpETHLVnZ",
+        filename: filename,
+        data_string: ()=>jsPsych.data.get().csv()
+      };
 
-    // saveDataの後に表示する試行
-    var finalMessage = {
+      // saveDataの後に表示する試行
+      var finalMessage = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: `
-            <p style="text-align: left;">改めまして、</p>
-            <p style="text-align: left;">調査にご協力くださり誠にありがとうございました。</p>
-            <p style="text-align: left;"><b>下記のURLをコピーして、新しいブラウザを開き、URLを貼り付けてください。</b></p>
-            <p style="text-align: left;">＊URLは、謝礼を送るのに必要な情報を記入していただくGoogleフォームにつながっています。</p>
-            <br><br><p>https://forms.gle/fLSUF5Epfn5qnCWYA</p>
-            <br><br><b>上記の手順を終えましたら、こちらのブラウザを閉じてください。</b>
+          <p style="text-align: left;">改めまして、</p>
+          <p style="text-align: left;">調査にご協力くださり誠にありがとうございました。</p>
+          <p style="text-align: left;"><b>下記のURLをコピーして、新しいブラウザを開き、URLを貼り付けてください。</b></p>
+          <p style="text-align: left;">＊URLは、謝礼を送るのに必要な情報を記入していただくGoogleフォームにつながっています。</p>
+          <br><br><p>https://forms.gle/fLSUF5Epfn5qnCWYA</p>
+          <br><br><b>上記の手順を終えましたら、こちらのブラウザを閉じてください。</b>
         `,
         choices: "NO_KEYS", // キー入力なし
+      };
     };
 
     // 実験の実行
     jsPsych.run([
-        enterFullscreen,    // フルスクリーン
-        preload,            // 刺激のプリロード
-        volumeInstruction,  // 音量調整フェイズ：教示
-        volumeAdjustment,   // 音量調整フェイズ：操作
-        mainInstruction,    // 本試行：教示
-        mainPractice,       // 本試行：練習
-        mainInstruction2,   // 本試行：教示（再掲）
-        ...mainTrials,      // 本試行：操作
-        showCode,           // 終了時のコード提示
-        save_data,           // データ保存
-        finalMessage        // 最後のメッセージ
+      enterFullscreen,    // フルスクリーン
+      preload,            // 刺激のプリロード
+      volumeInstruction,  // 音量調整フェイズ：教示
+      volumeAdjustment,   // 音量調整フェイズ：操作
+      mainInstruction,    // 本試行：教示
+      mainPractice,       // 本試行：練習
+      mainInstruction2,   // 本試行：教示（再掲）
+      ...mainTrials,      // 本試行：操作
+      showCode,           // 終了時のコード提示
+      save_data,           // データ保存
+      finalMessage        // 最後のメッセージ
     ]);
   </script>
 </html>
