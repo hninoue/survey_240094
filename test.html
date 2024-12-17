@@ -228,27 +228,14 @@
             }
 
             // jsPsychの初期化
-            const jsPsych = initJsPsych({
-              on_finish: function() {
-                console.log("実験が完了しました");
-              }
-            });
-
+            const jsPsych = initJsPsych();
+              
             // 参加者情報をjsPsychデータに追加
             jsPsych.data.addProperties({
                 participant_id: nextNumber, // 数字のIDを使用
                 trial_order: trialOrder.map(item => item.file) // 提示順の音声ファイル名を記録
             });
-
-            // jsPsychの初期化関数を実行
-            initJsPsychExperiment(jsPsych, trialOrder, nextNumber);
-
-        }).catch(error => {
-            console.error("エラーが発生しました:", error);
         });
-      })
-      .catch((error) => {
-        console.error("匿名認証エラー:", error);
       });
 
       // プリロード設定
