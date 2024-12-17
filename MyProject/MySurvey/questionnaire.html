@@ -358,42 +358,42 @@
         `,
         choices: [], // デフォルトのボタン生成を無効化
         on_load: function () {
-          // カスタムボタンの生成と挿入
-          const buttonContainer = document.getElementById("custom-button-container");
-          if (buttonContainer) {
-            console.log("ボタンコンテナが見つかりました。ボタンを追加します。"); // ログで確認
-            for (let i = 0; i < 6; i++) {
-              const button = document.createElement("button");
-              button.classList.add("jspsych-btn");
-              button.innerText = i + 1; // ボタンに番号を表示
-              button.dataset.choice = i; // 選択値を設定
-              button.style.fontSize = "24px"; // 文字サイズを大きく
-              button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
-              button.style.width = "80px"; // ボタンの幅を設定
-              button.style.height = "80px"; // ボタンの高さを設定
-              button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
-              button.style.marginLeft = "15px";  // ボタンを左に15px移動
-              button.addEventListener("click", function () {
-                jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
-              });
-              buttonContainer.appendChild(button);
-            }
-          } else {
-            console.log("ボタンコンテナが見つかりませんでした。"); // コンテナが見つからなかった場合のログ
-          }
-
           // 音声が準備できたら試行を開始
           const audioPlayer = document.getElementById('audio-player');
-          audioPlayer.oncanplaythrough = function() {
-            // 音声がロードされ、再生準備が整いました
-            console.log("音声がロードされ、再生準備が整いました。");
+      
+          // ボタンを無効化
+          const buttonContainer = document.getElementById("custom-button-container");
+          const buttons = [];
+          for (let i = 0; i < 6; i++) {
+            const button = document.createElement("button");
+            button.classList.add("jspsych-btn");
+            button.innerText = i + 1; // ボタンに番号を表示
+            button.dataset.choice = i; // 選択値を設定
+            button.style.fontSize = "24px"; // 文字サイズを大きく
+            button.style.padding = "20px"; // ボタンのパディングを増加（大きくする）
+            button.style.width = "80px"; // ボタンの幅を設定
+            button.style.height = "80px"; // ボタンの高さを設定
+            button.style.margin = "0 30px";  // ボタン間に左右15pxの間隔を追加
+            button.style.marginLeft = "15px";  // ボタンを左に15px移動
+            button.disabled = true; // 音声が再生されるまでボタンを無効化
+            button.addEventListener("click", function () {
+              jsPsych.finishTrial({ response: parseInt(this.dataset.choice) });
+            });
+            buttonContainer.appendChild(button);
+            buttons.push(button); // ボタンの参照を保持
+          }
+
+          // 音声が再生された後にボタンを有効化
+          audioPlayer.onended = function() {
+            buttons.forEach(button => {
+              button.disabled = false; // 音声終了後にボタンを有効化
+            });
           };
         },
         data: {
           audio_file: audioData[index].file, // 提示された音声ファイル名を記録
           word: audioData[index].word, // 単語情報
           prosody: audioData[index].prosody, // 抑揚情報
-          trial_index: index + 1 // 試行番号
         },
         trial_ends_after_audio: true  // 音声が再生された後に試行を終了
       });
@@ -415,7 +415,7 @@
             // 30秒後にボタンを有効化
             setTimeout(() => {
               document.getElementById("resume-button").disabled = false; // ボタンを有効化
-              document.getElementById("timer-message").innerText = "30秒が経過しました。「再開」ボタンを押して続行してください。";
+              document.getElementById("timer-message").innerText = "30秒が経過しましたので，「再開」ボタンを押してください。";
             }, 30000);
           },
         });
